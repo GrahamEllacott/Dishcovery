@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
+import com.example.dishcovery.features.screens.AddEditRecipeScreen
 import com.example.dishcovery.features.screens.DashboardScreen
 import com.example.dishcovery.features.screens.RecipeDetailScreen
 import com.example.dishcovery.features.screens.RecipeListScreen
@@ -42,10 +43,15 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object Plan : Screen("plan", "Plan", Icons.Outlined.CalendarToday)
     object Shopping : Screen("shopping", "Shopping", Icons.Outlined.ShoppingCart)
     object RecipeDetail : Screen("recipe_detail/{recipeId}", "Recipe Detail")
+    object AddEditRecipe : Screen("add_edit_recipe?recipeId={recipeId}", "Add/Edit Recipe")
 }
 
 fun Screen.RecipeDetail.createRoute(recipeId: Int): String {
     return "recipe_detail/$recipeId"
+}
+
+fun Screen.AddEditRecipe.createRoute(recipeId: Int? = null): String {
+    return if (recipeId != null) "add_edit_recipe?recipeId=$recipeId" else "add_edit_recipe"
 }
 
 @Composable
@@ -62,7 +68,8 @@ fun MainNavigation() {
     )
 
     val showBottomBar = currentRoute != Screen.Splash.route &&
-            currentRoute != Screen.RecipeDetail.route
+                        currentRoute != Screen.RecipeDetail.route &&
+                        !currentRoute.toString().startsWith("add_edit_recipe")
 
     Scaffold(
         bottomBar = {
@@ -138,6 +145,9 @@ fun MainNavigation() {
                 RecipeListScreen(
                     onRecipeClick = { recipeId ->
                         navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
+                    },
+                    onAddRecipeClick = {
+                        navController.navigate(Screen.AddEditRecipe.createRoute())
                     }
                 )
             }
@@ -198,9 +208,64 @@ fun MainNavigation() {
                 RecipeDetailScreen(
                     recipe = recipeDetail,
                     onBackClick = { navController.popBackStack() },
-                    onEditClick = { /* Navigate to edit screen */ },
+                    onEditClick = {
+                        navController.navigate(Screen.AddEditRecipe.createRoute(recipeId))
+                    },
                     onDeleteClick = { /* Handle delete */ },
                     onAddToMealPlan = { /* Handle add to meal plan */ }
+                )
+            }
+            composable(
+                route = Screen.AddEditRecipe.route,
+                arguments = listOf(
+                    navArgument("recipeId") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    }
+                )
+            ) { backStackEntry ->
+                val recipeId = backStackEntry.arguments?.getInt("recipeId")
+
+                // If recipeId is provided, fetch the recipe to edit
+                val recipeToEdit = if (recipeId != null && recipeId != -1) {
+                    // TODO: Fetch recipe from database
+                    Recipe(
+                        id = recipeId,
+                        name = "Spaghetti Carbonara",
+                        imageRes = R.drawable.ic_launcher_background,
+                        prepTime = 15,
+                        cookTime = 10,
+                        calories = 520,
+                        category = "Dinner",
+                        isFavorite = true,
+                        protein = 28,
+                        carbs = 58,
+                        fat = 19,
+                        fiber = 3,
+                        sodium = 680,
+                        ingredients = listOf(
+                            "400g spaghetti",
+                            "200g pancetta or bacon, diced",
+                            "4 large eggs",
+                            "100g Parmesan cheese, grated"
+                        ),
+                        instructions = listOf(
+                            "Bring a large pot of salted water to boil. Cook spaghetti according to package directions until al dente.",
+                            "While pasta cooks, heat a large skillet over medium heat. Add pancetta and cook until crispy, about 5-7 minutes.",
+                            "In a bowl, whisk together eggs, Parmesan cheese, and a generous amount of black pepper."
+                        )
+                    )
+                } else null
+
+                AddEditRecipeScreen(
+                    recipe = recipeToEdit,
+                    onSaveClick = {
+                        // TODO: Save recipe to database
+                        navController.popBackStack()
+                    },
+                    onCancelClick = {
+                        navController.popBackStack()
+                    }
                 )
             }
         }

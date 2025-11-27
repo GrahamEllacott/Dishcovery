@@ -233,7 +233,7 @@ fun RecipeDetailScreen(
                         text = "Nutrition Facts",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSecondary,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
 

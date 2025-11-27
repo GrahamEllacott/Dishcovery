@@ -48,6 +48,7 @@ import com.example.dishcovery.data.models.Recipe
 @Composable
 fun RecipeListScreen(
     onRecipeClick: (Int) -> Unit = {},
+    onAddRecipeClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -118,7 +119,7 @@ fun RecipeListScreen(
                             Icon(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = "Notifications",
-                                tint = MaterialTheme.colorScheme.secondary
+                                tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
@@ -133,7 +134,7 @@ fun RecipeListScreen(
                             Icon(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = "Profile",
-                                tint = Color.White
+                                tint = MaterialTheme.colorScheme.onSecondary
                             )
                         }
                     }
@@ -179,7 +180,7 @@ fun RecipeListScreen(
 
         // Floating Action Button (Plus Button)
         FloatingActionButton(
-            onClick = { /* Add new recipe */ },
+            onClick = onAddRecipeClick,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(24.dp),
