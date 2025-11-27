@@ -1,12 +1,19 @@
 package com.example.dishcovery.data.models
 
-// To update this class when work on Recipe Detail Screen (add other fields)
 data class Recipe(
     val id: Int,
     val name: String,
     val imageRes: Int,
     val prepTime: Int,
+    val cookTime: Int = 0,
     val calories: Int,
     val category: String,
-    var isFavorite: Boolean = false
+    var isFavorite: Boolean = false,
+    val ingredients: List<String> = emptyList(),
+    val instructions: List<String> = emptyList(),
+    val protein: Int = 0,
+    val carbs: Int = 0,
+    val fat: Int = 0,
+    val fiber: Int = 0,
+    val sodium: Int = 0
 )
