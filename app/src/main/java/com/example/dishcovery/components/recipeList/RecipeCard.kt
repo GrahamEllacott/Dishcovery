@@ -37,7 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
-
+import com.example.dishcovery.ui.theme.TextPrimary
+import com.example.dishcovery.ui.theme.TextSecondary
 
 @Composable
 fun RecipeCard(
@@ -72,7 +73,8 @@ fun RecipeCard(
                     Text(
                         text = recipe.name,
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -90,13 +92,13 @@ fun RecipeCard(
                         RecipeInfoItem(
                             icon = Icons.Outlined.LocalFireDepartment,
                             text = "${recipe.calories} cal",
-                            color = MaterialTheme.colorScheme.secondary
+                            color = Color(0xFFFF9800)
                         )
 
                         RecipeInfoItem(
                             icon = Icons.Outlined.Restaurant,
                             text = recipe.category,
-                            color = MaterialTheme.colorScheme.tertiary
+                            color = Color(0xFF8B4513)
                         )
                     }
                 }
@@ -133,7 +135,7 @@ fun RecipeInfoItem(icon: ImageVector, text: String, color: Color) {
             modifier = Modifier.size(20.dp),
             tint = color
         )
-        Text(text = text, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = text, fontSize = 14.sp, color = TextSecondary)
     }
 }
 

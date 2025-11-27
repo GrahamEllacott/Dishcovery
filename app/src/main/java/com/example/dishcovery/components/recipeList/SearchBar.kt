@@ -65,13 +65,13 @@ fun RecipeSearchBar(
 
             Surface(
                 shape = RoundedCornerShape(15.dp),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.secondary,
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search",
                     modifier = Modifier.padding(14.dp),
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }

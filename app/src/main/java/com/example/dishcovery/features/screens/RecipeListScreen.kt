@@ -43,10 +43,14 @@ import com.example.dishcovery.components.recipeList.CategoryFilter
 import com.example.dishcovery.components.recipeList.RecipeCard
 import com.example.dishcovery.components.recipeList.RecipeSearchBar
 import com.example.dishcovery.data.models.Recipe
+import com.example.dishcovery.ui.theme.TextPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeListScreen(modifier: Modifier = Modifier) {
+fun RecipeListScreen(
+    onRecipeClick: (Int) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Dinner") }
 
@@ -100,7 +104,8 @@ fun RecipeListScreen(modifier: Modifier = Modifier) {
                 Text(
                     text = "My Recipes",
                     fontSize = 36.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -114,7 +119,7 @@ fun RecipeListScreen(modifier: Modifier = Modifier) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = "Notifications",
-                                tint = Color.White
+                                tint = MaterialTheme.colorScheme.secondary
                             )
                         }
                     }
@@ -167,7 +172,7 @@ fun RecipeListScreen(modifier: Modifier = Modifier) {
                             val index = recipes.indexOf(recipe)
                             recipes[index] = recipe.copy(isFavorite = !recipe.isFavorite)
                         },
-                        onCardClick = { /* Navigate to detail */ }
+                        onCardClick = { onRecipeClick(recipe.id) }
                     )
                 }
             }

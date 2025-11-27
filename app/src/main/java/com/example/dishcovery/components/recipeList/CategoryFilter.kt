@@ -42,16 +42,18 @@ fun CategoryFilter(
                 },
                 shape = RoundedCornerShape(50.dp),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    labelColor = MaterialTheme.colorScheme.onSurface
+                    selectedContainerColor = MaterialTheme.colorScheme.secondary,
+                    selectedLabelColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    labelColor = MaterialTheme.colorScheme.primary
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = true,
                     selected = selectedCategory == category,
-                    borderColor = if (selectedCategory == category) Color.Transparent else MaterialTheme.colorScheme.outline,
-                    selectedBorderColor = Color.Transparent
+                    borderColor = Color.Transparent,
+                    selectedBorderColor = MaterialTheme.colorScheme.primary,
+                    borderWidth = 2.dp,
+                    selectedBorderWidth = 2.dp
                 )
             )
         }
