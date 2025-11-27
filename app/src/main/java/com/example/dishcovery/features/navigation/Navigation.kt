@@ -31,7 +31,9 @@ import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.features.screens.DashboardScreen
 import com.example.dishcovery.features.screens.RecipeDetailScreen
 import com.example.dishcovery.features.screens.RecipeListScreen
+import com.example.dishcovery.features.screens.ShoppingListScreen
 import com.example.dishcovery.features.screens.SplashScreen
+import com.example.dishcovery.features.screens.WeeklyMealPlanScreen
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector? = null) {
     object Splash : Screen("splash", "Splash")
@@ -60,7 +62,7 @@ fun MainNavigation() {
     )
 
     val showBottomBar = currentRoute != Screen.Splash.route &&
-                        currentRoute != Screen.RecipeDetail.route
+            currentRoute != Screen.RecipeDetail.route
 
     Scaffold(
         bottomBar = {
@@ -140,12 +142,14 @@ fun MainNavigation() {
                 )
             }
             composable(Screen.Plan.route) {
-                // MealPlanScreen will be added here
-                Text("Meal Plan Screen")
+                WeeklyMealPlanScreen(
+                    onNavigateToRecipes = {
+                        navController.navigate(Screen.Recipe.route)
+                    }
+                )
             }
             composable(Screen.Shopping.route) {
-                // ShoppingListScreen will be added here
-                Text("Shopping List Screen")
+                ShoppingListScreen()
             }
             composable(
                 route = Screen.RecipeDetail.route,
