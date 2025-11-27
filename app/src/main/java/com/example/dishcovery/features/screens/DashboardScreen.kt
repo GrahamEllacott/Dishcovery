@@ -51,6 +51,7 @@ import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.ui.theme.DishcoveryTheme
 import com.example.dishcovery.ui.theme.TextPrimary
 import com.example.dishcovery.ui.theme.TextSecondary
+import com.example.dishcovery.ui.theme.WarningOrange
 
 @Composable
 fun DashboardScreen(modifier: Modifier = Modifier) {
@@ -251,7 +252,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                             Icon(
                                 imageVector = Icons.Outlined.LocalFireDepartment,
                                 contentDescription = "Calories",
-                                tint = Color(0xFFFF9800)
+                                tint = WarningOrange
                             )
                         }
 

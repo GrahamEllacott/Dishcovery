@@ -39,6 +39,8 @@ import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.ui.theme.TextPrimary
 import com.example.dishcovery.ui.theme.TextSecondary
+import com.example.dishcovery.ui.theme.WarningOrange
+import com.example.dishcovery.ui.theme.BrownIcon
 
 @Composable
 fun RecipeCard(
@@ -53,6 +55,9 @@ fun RecipeCard(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         onClick = onCardClick
     ) {
         Box {
@@ -92,13 +97,13 @@ fun RecipeCard(
                         RecipeInfoItem(
                             icon = Icons.Outlined.LocalFireDepartment,
                             text = "${recipe.calories} cal",
-                            color = Color(0xFFFF9800)
+                            color = WarningOrange
                         )
 
                         RecipeInfoItem(
                             icon = Icons.Outlined.Restaurant,
                             text = recipe.category,
-                            color = Color(0xFF8B4513)
+                            color = BrownIcon
                         )
                     }
                 }

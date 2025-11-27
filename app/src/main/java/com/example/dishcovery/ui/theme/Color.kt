@@ -11,7 +11,7 @@ val DarkOlive = Color(0xFF4A5624)
 val WarningOrange = Color(0xFFFF9800)
 val BrownIcon = Color(0xFF8B4513)
 
-// Dark Theme Colors (for future use)
+// Dark Theme Colors
 val DarkOliveGreen = Color(0xFF7A8F3E)
 val DarkSageGreen = Color(0xFF9DB888)
 val DarkBackground = Color(0xFF1C1B1F)
