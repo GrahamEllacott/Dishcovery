@@ -2,7 +2,6 @@ package com.example.dishcovery.components.recipeList
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -60,68 +59,69 @@ fun RecipeCard(
         ),
         onClick = onCardClick
     ) {
-        Box {
-            Column {
-                Image(
-                    painter = painterResource(id = recipe.imageRes),
-                    contentDescription = recipe.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-                    contentScale = ContentScale.Crop
-                )
+        Column {
+            Image(
+                painter = painterResource(id = recipe.imageRes),
+                contentDescription = recipe.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                contentScale = ContentScale.Crop
+            )
 
-                Column(
-                    modifier = Modifier.padding(16.dp)
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = recipe.name,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                        color = TextPrimary,
+                        modifier = Modifier.weight(1f)
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    IconButton(
+                        onClick = { onFavoriteClick(recipe) }
                     ) {
-                        RecipeInfoItem(
-                            icon = Icons.Outlined.AccessTime,
-                            text = "${recipe.prepTime} min",
-                            color = MaterialTheme.colorScheme.primary
-                        )
-
-                        RecipeInfoItem(
-                            icon = Icons.Outlined.LocalFireDepartment,
-                            text = "${recipe.calories} cal",
-                            color = WarningOrange
-                        )
-
-                        RecipeInfoItem(
-                            icon = Icons.Outlined.Restaurant,
-                            text = recipe.category,
-                            color = BrownIcon
+                        Icon(
+                            imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(28.dp)
                         )
                     }
                 }
-            }
 
-            // Favorite Button
-            IconButton(
-                onClick = { onFavoriteClick(recipe) },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            ) {
-                Icon(
-                    imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = "Favorite",
-                    tint = if (recipe.isFavorite) MaterialTheme.colorScheme.primary else Color.White,
-                    modifier = Modifier.size(32.dp)
-                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RecipeInfoItem(
+                        icon = Icons.Outlined.AccessTime,
+                        text = "${recipe.prepTime} min",
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    RecipeInfoItem(
+                        icon = Icons.Outlined.LocalFireDepartment,
+                        text = "${recipe.calories} cal",
+                        color = WarningOrange
+                    )
+
+                    RecipeInfoItem(
+                        icon = Icons.Outlined.Restaurant,
+                        text = recipe.category,
+                        color = BrownIcon
+                    )
+                }
             }
         }
     }
