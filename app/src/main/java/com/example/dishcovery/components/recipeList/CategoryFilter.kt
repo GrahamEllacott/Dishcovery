@@ -42,7 +42,7 @@ fun CategoryFilter(
                 },
                 shape = RoundedCornerShape(50.dp),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.secondary,
+                    selectedContainerColor = MaterialTheme.colorScheme.onPrimary,
                     selectedLabelColor = MaterialTheme.colorScheme.primary,
                     containerColor = MaterialTheme.colorScheme.secondary,
                     labelColor = MaterialTheme.colorScheme.primary

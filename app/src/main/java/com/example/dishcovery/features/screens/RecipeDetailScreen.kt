@@ -49,9 +49,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dishcovery.data.models.Recipe
-import com.example.dishcovery.ui.theme.BrownIcon
-import com.example.dishcovery.ui.theme.TextPrimary
-import com.example.dishcovery.ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,7 +94,7 @@ fun RecipeDetailScreen(
                     text = recipe.name,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
@@ -149,7 +146,7 @@ fun RecipeDetailScreen(
                     Text(
                         text = "Add to Meal Plan",
                         fontSize = 14.sp,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -199,7 +196,7 @@ fun RecipeDetailScreen(
                     Text(
                         text = "Prepare: ${recipe.prepTime} min | Cook: ${recipe.cookTime} min",
                         fontSize = 14.sp,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -207,14 +204,14 @@ fun RecipeDetailScreen(
                     Icon(
                         imageVector = Icons.Outlined.Restaurant,
                         contentDescription = "Category",
-                        tint = BrownIcon,
+                        tint = MaterialTheme.colorScheme.errorContainer,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = recipe.category,
                         fontSize = 14.sp,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -292,7 +289,7 @@ fun RecipeDetailScreen(
                     text = "Ingredients",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -315,7 +312,7 @@ fun RecipeDetailScreen(
                     text = "Instructions",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -365,7 +362,7 @@ fun NutritionItem(label: String, value: String) {
         Text(
             text = value,
             fontSize = 14.sp,
-            color = TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -390,7 +387,7 @@ fun IngredientItem(ingredient: String) {
         Text(
             text = ingredient,
             fontSize = 14.sp,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 4.dp, top = 12.dp)
         )
     }
@@ -415,7 +412,7 @@ fun InstructionItem(instruction: String) {
         Text(
             text = instruction,
             fontSize = 14.sp,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 4.dp, top = 12.dp)
         )
     }

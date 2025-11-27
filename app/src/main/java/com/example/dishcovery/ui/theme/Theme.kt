@@ -20,8 +20,11 @@ private val DarkColorScheme = darkColorScheme(
     surface = Color(0xFF2C2C2C),
     onPrimary = White,
     onSecondary = White,
-    onBackground = White,
-    onSurface = White
+    onBackground = DarkTextPrimary,
+    onSurface = DarkTextPrimary,
+    onSurfaceVariant = DarkTextSecondary,
+    error = WarningOrange,
+    errorContainer = BrownIcon
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -35,7 +38,9 @@ private val LightColorScheme = lightColorScheme(
     onTertiary = TextPrimary,
     onBackground = TextPrimary,
     onSurface = TextPrimary,
-    error = WarningOrange
+    onSurfaceVariant = TextSecondary,
+    error = WarningOrange,
+    errorContainer = BrownIcon
 )
 
 @Composable

@@ -49,9 +49,6 @@ import androidx.compose.ui.unit.sp
 import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.ui.theme.DishcoveryTheme
-import com.example.dishcovery.ui.theme.TextPrimary
-import com.example.dishcovery.ui.theme.TextSecondary
-import com.example.dishcovery.ui.theme.WarningOrange
 
 @Composable
 fun DashboardScreen(modifier: Modifier = Modifier) {
@@ -103,7 +100,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                     text = "Dashboard",
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -151,7 +148,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                     "Today's Meals",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
@@ -195,18 +192,18 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                     Text(
                                         recipe.category,
                                         fontSize = 16.sp,
-                                        color = TextSecondary
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Text(
                                         recipe.name,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = TextPrimary
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
                                         "${recipe.calories}kcal",
                                         fontSize = 16.sp,
-                                        color = TextSecondary
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -226,7 +223,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                     "Today's Nutrition Summary",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
@@ -252,7 +249,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                             Icon(
                                 imageVector = Icons.Outlined.LocalFireDepartment,
                                 contentDescription = "Calories",
-                                tint = WarningOrange
+                                tint = MaterialTheme.colorScheme.error
                             )
                         }
 
@@ -313,13 +310,13 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                         "Fats",
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = TextPrimary
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
                                         "25% 45g",
                                         fontSize = 13.sp,
-                                        color = TextSecondary
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 LinearProgressIndicator(
@@ -338,13 +335,13 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                         "Protien",
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = TextPrimary
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
                                         "45% 75g",
                                         fontSize = 13.sp,
-                                        color = TextSecondary
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 LinearProgressIndicator(
@@ -363,13 +360,13 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                         "Carbs",
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = TextPrimary
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
                                         "30% 45g",
                                         fontSize = 13.sp,
-                                        color = TextSecondary
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 LinearProgressIndicator(

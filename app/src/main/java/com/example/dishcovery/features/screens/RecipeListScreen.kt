@@ -43,7 +43,6 @@ import com.example.dishcovery.components.recipeList.CategoryFilter
 import com.example.dishcovery.components.recipeList.RecipeCard
 import com.example.dishcovery.components.recipeList.RecipeSearchBar
 import com.example.dishcovery.data.models.Recipe
-import com.example.dishcovery.ui.theme.TextPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,7 +104,7 @@ fun RecipeListScreen(
                     text = "My Recipes",
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

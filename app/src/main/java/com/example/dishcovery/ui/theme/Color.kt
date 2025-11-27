@@ -15,6 +15,8 @@ val BrownIcon = Color(0xFF8B4513)
 val DarkOliveGreen = Color(0xFF7A8F3E)
 val DarkSageGreen = Color(0xFF9DB888)
 val DarkBackground = Color(0xFF1C1B1F)
+val DarkTextPrimary = Color(0xFFE8E8E8)
+val DarkTextSecondary = Color(0xFFB0B0B0)
 
 // Neutral Colors
 val TextPrimary = Color(0xFF2C2C2C)
