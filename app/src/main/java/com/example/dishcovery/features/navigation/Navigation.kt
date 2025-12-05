@@ -36,6 +36,36 @@ import com.example.dishcovery.features.screens.ShoppingListScreen
 import com.example.dishcovery.features.screens.SplashScreen
 import com.example.dishcovery.features.screens.WeeklyMealPlanScreen
 
+
+@Composable
+fun AppEntryPoint() {
+    val rootNavController = rememberNavController()
+
+    NavHost(
+        navController = rootNavController,
+        startDestination = "splash_route"
+    ) {
+        // 1. The Splash Screen Route
+        composable("splash_route") {
+            SplashScreen(
+                onNavigateToMain = {
+                    rootNavController.navigate("main_graph_route") {
+                        popUpTo("splash_route") {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
+
+        // 2. The Main App Route (Your existing MainNavigation)
+        composable("main_graph_route") {
+            MainNavigation()
+        }
+    }
+}
+
+
 sealed class Screen(val route: String, val title: String, val icon: ImageVector? = null) {
     object Splash : Screen("splash", "Splash")
     object Home : Screen("home", "Home", Icons.Outlined.Home)
