@@ -43,13 +43,21 @@ fun AddEditRecipeScreen(
 ) {
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
+
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.initRepository(context)
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
 
     var categoryExpanded by remember { mutableStateOf(false) }
     var showExitDialog by remember { mutableStateOf(false) }
     var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
     var showMoreNutrition by remember { mutableStateOf(false) }
+
+
 
     // Gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(

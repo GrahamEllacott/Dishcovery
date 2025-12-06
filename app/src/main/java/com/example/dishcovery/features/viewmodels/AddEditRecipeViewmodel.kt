@@ -1,5 +1,6 @@
 package com.example.dishcovery.features.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dishcovery.data.models.Recipe
@@ -49,9 +50,14 @@ data class AddEditRecipeUiState(
     val showValidationErrors: Boolean = false
 )
 
-class AddEditRecipeViewModel(
-    private val repository: RecipeRepository = RecipeRepository()
-) : ViewModel() {
+class AddEditRecipeViewModel() : ViewModel() {
+
+    private lateinit var repository: RecipeRepository
+
+    fun initRepository(context: Context) {
+        repository = RecipeRepository(context)
+    }
+
 
     private val _uiState = MutableStateFlow(AddEditRecipeUiState())
     val uiState: StateFlow<AddEditRecipeUiState> = _uiState.asStateFlow()
