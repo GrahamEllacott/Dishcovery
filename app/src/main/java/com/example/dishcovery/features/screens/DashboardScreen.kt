@@ -56,7 +56,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
     val recipes = remember {
         mutableStateListOf(
             Recipe(
-                id = 1,
+                id = "id1",
                 name = "Spaghetti Carbonara",
                 imageRes = R.drawable.ic_launcher_background,
                 prepTime = 25,
@@ -64,7 +64,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                 category = "Dinner"
             ),
             Recipe(
-                id = 2,
+                id = "id2",
                 name = "Honey Garlic Chicken",
                 imageRes = R.drawable.ic_launcher_background,
                 prepTime = 35,
@@ -72,7 +72,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                 category = "Dinner"
             ),
             Recipe(
-                id = 3,
+                id = "id3",
                 name = "Lobster Pasta",
                 imageRes = R.drawable.ic_launcher_background,
                 prepTime = 40,
@@ -114,7 +114,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = "Notifications",
-                                tint = MaterialTheme.colorScheme.secondary
+                                tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
@@ -129,7 +129,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                             Icon(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = "Profile",
-                                tint = Color.White
+                                tint = MaterialTheme.colorScheme.onSecondary
                             )
                         }
                     }

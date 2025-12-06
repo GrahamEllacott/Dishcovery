@@ -1,5 +1,6 @@
 package com.example.dishcovery.components.recipeList
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
 
@@ -56,15 +58,27 @@ fun RecipeCard(
         onClick = onCardClick
     ) {
         Column {
-            Image(
-                painter = painterResource(id = recipe.imageRes),
-                contentDescription = recipe.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-                contentScale = ContentScale.Crop
-            )
+            if(recipe.imageUri?.isNotEmpty() ?: false){
+                AsyncImage(
+                    model = Uri.parse(recipe.imageUri),
+                    contentDescription = recipe.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }else{
+                Image(
+                    painter = painterResource(id = recipe.imageRes),
+                    contentDescription = recipe.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
             Column(
                 modifier = Modifier.padding(16.dp)
@@ -150,7 +164,7 @@ fun RecipeInfoItem(icon: ImageVector, text: String, color: Color) {
 fun RecipeCardPreview() {
     RecipeCard(
         recipe = Recipe(
-            id = 1,
+            id = "id1",
             name = "Pizza",
             imageRes = R.drawable.ic_launcher_background,
             prepTime = 30,

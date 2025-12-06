@@ -1,6 +1,5 @@
 package com.example.dishcovery.features.screens
 
-import com.example.dishcovery.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,11 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,52 +34,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dishcovery.components.recipeList.CategoryFilter
 import com.example.dishcovery.components.recipeList.RecipeCard
 import com.example.dishcovery.components.recipeList.RecipeSearchBar
-import com.example.dishcovery.data.models.Recipe
+import com.example.dishcovery.features.viewmodels.RecipeListViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeListScreen(
-    onRecipeClick: (Int) -> Unit = {},
-    modifier: Modifier = Modifier
+    onRecipeClick: (String) -> Unit = {},
+    onAddRecipeClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    viewModel : RecipeListViewModel = viewModel()
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("Dinner") }
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
-    // Sample categories to be removed when API implemented
-    val categories = listOf("All", "Breakfast", "Lunch", "Dinner", "Snacks")
-
-    // Sample recipes to be removed when API implemented
-    val recipes = remember {
-        mutableStateListOf(
-            Recipe(
-                id = 1,
-                name = "Spaghetti Carbonara",
-                imageRes = R.drawable.ic_launcher_background,
-                prepTime = 25,
-                calories = 520,
-                category = "Dinner"
-            ),
-            Recipe(
-                id = 2,
-                name = "Honey Garlic Chicken",
-                imageRes = R.drawable.ic_launcher_background,
-                prepTime = 35,
-                calories = 380,
-                category = "Dinner"
-            ),
-            Recipe(
-                id = 3,
-                name = "Lobster Pasta",
-                imageRes = R.drawable.ic_launcher_background,
-                prepTime = 40,
-                calories = 450,
-                category = "Dinner"
-            )
-        )
+    LaunchedEffect(Unit) {
+        viewModel.initRepository(context)
     }
+
+    // TODO: Sample categories to be removed when API implemented
+    val categories = listOf("All", "Breakfast", "Lunch", "Dinner", "Snacks")
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -118,7 +93,7 @@ fun RecipeListScreen(
                             Icon(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = "Notifications",
-                                tint = MaterialTheme.colorScheme.secondary
+                                tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
@@ -133,7 +108,7 @@ fun RecipeListScreen(
                             Icon(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = "Profile",
-                                tint = Color.White
+                                tint = MaterialTheme.colorScheme.onSecondary
                             )
                         }
                     }
@@ -144,8 +119,9 @@ fun RecipeListScreen(
 
             // Search Bar
             RecipeSearchBar(
-                searchQuery = searchQuery,
-                onSearchQueryChange = { searchQuery = it }
+                searchQuery = uiState.searchQuery,
+                onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+                onSearchQuerySubmit = { viewModel.onSearchQuerySubmit() }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -153,8 +129,8 @@ fun RecipeListScreen(
             // Category Filter (LazyRow)
             CategoryFilter(
                 categories = categories,
-                selectedCategory = selectedCategory,
-                onCategorySelected = { selectedCategory = it }
+                selectedCategory = uiState.selectedCategory,
+                onCategorySelected = { viewModel.onCategorySelected(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -164,12 +140,11 @@ fun RecipeListScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 80.dp)
             ) {
-                items(recipes) { recipe ->
+                items(uiState.recipes) { recipe ->
                     RecipeCard(
                         recipe = recipe,
                         onFavoriteClick = {
-                            val index = recipes.indexOf(recipe)
-                            recipes[index] = recipe.copy(isFavorite = !recipe.isFavorite)
+                            viewModel.toggleFavorite(recipe.id)
                         },
                         onCardClick = { onRecipeClick(recipe.id) }
                     )
@@ -179,7 +154,7 @@ fun RecipeListScreen(
 
         // Floating Action Button (Plus Button)
         FloatingActionButton(
-            onClick = { /* Add new recipe */ },
+            onClick = onAddRecipeClick,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(24.dp),

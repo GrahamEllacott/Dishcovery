@@ -1,5 +1,10 @@
 package com.example.dishcovery.features.navigation
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarToday
@@ -14,10 +19,16 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -28,12 +39,43 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
+import com.example.dishcovery.features.screens.AddEditRecipeScreen
 import com.example.dishcovery.features.screens.DashboardScreen
 import com.example.dishcovery.features.screens.RecipeDetailScreen
 import com.example.dishcovery.features.screens.RecipeListScreen
 import com.example.dishcovery.features.screens.ShoppingListScreen
 import com.example.dishcovery.features.screens.SplashScreen
 import com.example.dishcovery.features.screens.WeeklyMealPlanScreen
+
+
+@Composable
+fun AppEntryPoint() {
+    val rootNavController = rememberNavController()
+
+    NavHost(
+        navController = rootNavController,
+        startDestination = "splash_route"
+    ) {
+        // 1. The Splash Screen Route
+        composable("splash_route") {
+            SplashScreen(
+                onNavigateToMain = {
+                    rootNavController.navigate("main_graph_route") {
+                        popUpTo("splash_route") {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
+
+        // 2. The Main App Route (Your existing MainNavigation)
+        composable("main_graph_route") {
+            MainNavigation()
+        }
+    }
+}
+
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector? = null) {
     object Splash : Screen("splash", "Splash")
@@ -42,10 +84,15 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object Plan : Screen("plan", "Plan", Icons.Outlined.CalendarToday)
     object Shopping : Screen("shopping", "Shopping", Icons.Outlined.ShoppingCart)
     object RecipeDetail : Screen("recipe_detail/{recipeId}", "Recipe Detail")
+    object AddEditRecipe : Screen("add_edit_recipe?recipeId={recipeId}", "Add/Edit Recipe")
 }
 
-fun Screen.RecipeDetail.createRoute(recipeId: Int): String {
+fun Screen.RecipeDetail.createRoute(recipeId: String): String {
     return "recipe_detail/$recipeId"
+}
+
+fun Screen.AddEditRecipe.createRoute(recipeId: String = ""): String {
+    return if (recipeId != null) "add_edit_recipe?recipeId=$recipeId" else "add_edit_recipe"
 }
 
 @Composable
@@ -62,7 +109,8 @@ fun MainNavigation() {
     )
 
     val showBottomBar = currentRoute != Screen.Splash.route &&
-            currentRoute != Screen.RecipeDetail.route
+            currentRoute != Screen.RecipeDetail.route &&
+            !currentRoute.toString().startsWith("add_edit_recipe")
 
     Scaffold(
         bottomBar = {
@@ -138,6 +186,9 @@ fun MainNavigation() {
                 RecipeListScreen(
                     onRecipeClick = { recipeId ->
                         navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
+                    },
+                    onAddRecipeClick = {
+                        navController.navigate(Screen.AddEditRecipe.createRoute())
                     }
                 )
             }
@@ -159,7 +210,7 @@ fun MainNavigation() {
                     }
                 )
             ) { backStackEntry ->
-                val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: 0
+                val recipeId = backStackEntry.arguments?.getString("recipeId") ?: ""
 
                 // Using sample date for now - to be replaced with actual data fetching
                 val recipeDetail = Recipe(
@@ -198,11 +249,120 @@ fun MainNavigation() {
                 RecipeDetailScreen(
                     recipe = recipeDetail,
                     onBackClick = { navController.popBackStack() },
-                    onEditClick = { /* Navigate to edit screen */ },
+                    onEditClick = {
+                        navController.navigate(Screen.AddEditRecipe.createRoute(recipeId))
+                    },
                     onDeleteClick = { /* Handle delete */ },
                     onAddToMealPlan = { /* Handle add to meal plan */ }
                 )
             }
+            composable(
+                route = Screen.AddEditRecipe.route,
+                arguments = listOf(
+                    navArgument("recipeId") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    }
+                )
+            ) { backStackEntry ->
+                val recipeId = backStackEntry.arguments?.getString("recipeId")
+
+                // If recipeId is provided, fetch the recipe to edit
+                val recipeToEdit = if (recipeId != null && recipeId != "") {
+                    // TODO: Fetch recipe from database
+                    Recipe(
+                        id = recipeId,
+                        name = "Spaghetti Carbonara",
+                        imageRes = R.drawable.ic_launcher_background,
+                        prepTime = 15,
+                        cookTime = 10,
+                        calories = 520,
+                        category = "Dinner",
+                        isFavorite = true,
+                        protein = 28,
+                        carbs = 58,
+                        fat = 19,
+                        fiber = 3,
+                        sodium = 680,
+                        ingredients = listOf(
+                            "400g spaghetti",
+                            "200g pancetta or bacon, diced",
+                            "4 large eggs",
+                            "100g Parmesan cheese, grated"
+                        ),
+                        instructions = listOf(
+                            "Bring a large pot of salted water to boil. Cook spaghetti according to package directions until al dente.",
+                            "While pasta cooks, heat a large skillet over medium heat. Add pancetta and cook until crispy, about 5-7 minutes.",
+                            "In a bowl, whisk together eggs, Parmesan cheese, and a generous amount of black pepper."
+                        )
+                    )
+                } else null
+
+                // Wrap AddEditRecipeScreen with permission handler
+                AddEditRecipeScreenWithPermissions(
+                    recipe = recipeToEdit,
+                    onSaveClick = {
+                        // TODO: Save recipe to database
+                        navController.popBackStack()
+                    },
+                    onCancelClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
+}
+
+/**
+ * Wrapper composable that handles permissions for AddEditRecipeScreen
+ */
+@Composable
+fun AddEditRecipeScreenWithPermissions(
+    recipe: Recipe?,
+    onSaveClick: () -> Unit,
+    onCancelClick: () -> Unit
+) {
+    val context = LocalContext.current
+    var hasPermissions by remember { mutableStateOf(false) }
+
+    // Define required permissions based on Android version
+    val permissions = remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_MEDIA_IMAGES
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
+    }
+
+    // Permission launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissionResults ->
+        hasPermissions = permissionResults.values.all { it }
+    }
+
+    // Check permissions on first composition
+    LaunchedEffect(Unit) {
+        hasPermissions = permissions.all {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
+
+        // Request permissions if not granted
+        if (!hasPermissions) {
+            permissionLauncher.launch(permissions)
+        }
+    }
+
+    // Always show the screen (permissions are handled internally)
+    AddEditRecipeScreen(
+        onSaveClick = onSaveClick,
+        onCancelClick = onCancelClick
+    )
 }

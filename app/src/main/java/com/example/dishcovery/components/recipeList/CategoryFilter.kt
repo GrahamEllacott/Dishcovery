@@ -37,15 +37,15 @@ fun CategoryFilter(
                 label = {
                     Text(
                         text = category,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     )
                 },
                 shape = RoundedCornerShape(50.dp),
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = MaterialTheme.colorScheme.onPrimary,
                     selectedLabelColor = MaterialTheme.colorScheme.primary,
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    labelColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.onSecondary,
+                    labelColor = MaterialTheme.colorScheme.secondary
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = true,
