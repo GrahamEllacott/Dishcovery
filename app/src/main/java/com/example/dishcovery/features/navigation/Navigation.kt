@@ -1,5 +1,10 @@
 package com.example.dishcovery.features.navigation
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarToday
@@ -14,10 +19,16 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -98,8 +109,8 @@ fun MainNavigation() {
     )
 
     val showBottomBar = currentRoute != Screen.Splash.route &&
-                        currentRoute != Screen.RecipeDetail.route &&
-                        !currentRoute.toString().startsWith("add_edit_recipe")
+            currentRoute != Screen.RecipeDetail.route &&
+            !currentRoute.toString().startsWith("add_edit_recipe")
 
     Scaffold(
         bottomBar = {
@@ -287,7 +298,8 @@ fun MainNavigation() {
                     )
                 } else null
 
-                AddEditRecipeScreen(
+                // Wrap AddEditRecipeScreen with permission handler
+                AddEditRecipeScreenWithPermissions(
                     recipe = recipeToEdit,
                     onSaveClick = {
                         // TODO: Save recipe to database
@@ -300,4 +312,58 @@ fun MainNavigation() {
             }
         }
     }
+}
+
+/**
+ * Wrapper composable that handles permissions for AddEditRecipeScreen
+ */
+@Composable
+fun AddEditRecipeScreenWithPermissions(
+    recipe: Recipe?,
+    onSaveClick: () -> Unit,
+    onCancelClick: () -> Unit
+) {
+    val context = LocalContext.current
+    var hasPermissions by remember { mutableStateOf(false) }
+
+    // Define required permissions based on Android version
+    val permissions = remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_MEDIA_IMAGES
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
+    }
+
+    // Permission launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissionResults ->
+        hasPermissions = permissionResults.values.all { it }
+    }
+
+    // Check permissions on first composition
+    LaunchedEffect(Unit) {
+        hasPermissions = permissions.all {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
+
+        // Request permissions if not granted
+        if (!hasPermissions) {
+            permissionLauncher.launch(permissions)
+        }
+    }
+
+    // Always show the screen (permissions are handled internally)
+    AddEditRecipeScreen(
+        recipe = recipe,
+        onSaveClick = onSaveClick,
+        onCancelClick = onCancelClick
+    )
 }

@@ -3,7 +3,8 @@ package com.example.dishcovery.data.models
 data class Recipe(
     val id: Int,
     val name: String,
-    val imageRes: Int,
+    val imageRes: Int = 0,
+    val imageUri: String? = null,
     val prepTime: Int,
     val cookTime: Int = 0,
     val calories: Int,
