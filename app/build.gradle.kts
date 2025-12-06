@@ -25,6 +25,7 @@ android {
             load(rootProject.file("secret.properties").reader())
         }
         buildConfigField("String", "SPOON_API_KEY", secretProperties["SPOON_API_KEY"].toString())
+        buildConfigField("String", "IMG_BB_API_KEY", secretProperties["IMG_BB_API_KEY"].toString())
     }
 
     buildTypes {
@@ -74,6 +75,8 @@ dependencies {
 
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
     implementation("io.coil-kt:coil-compose:2.7.0")
 

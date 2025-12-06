@@ -1,5 +1,6 @@
 package com.example.dishcovery.features.viewmodels
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,9 +25,13 @@ data class RecipeListUiState(
     val error: String? = null
 )
 
-class RecipeListViewModel(
-    private val repository: RecipeRepository = RecipeRepository()
-) : ViewModel() {
+class RecipeListViewModel() : ViewModel() {
+
+    private lateinit var repository: RecipeRepository
+
+    fun initRepository(context: Context) {
+        repository = RecipeRepository(context)
+    }
     private val _uiState = MutableStateFlow(RecipeListUiState())
     val uiState: StateFlow<RecipeListUiState> = _uiState.asStateFlow()
 
