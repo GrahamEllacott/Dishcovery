@@ -19,16 +19,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.dishcovery.R
-import com.example.dishcovery.data.models.DayMealPlan
-import com.example.dishcovery.data.models.MealPlanItem
+import com.example.dishcovery.data.models.MealPlan
 import com.example.dishcovery.ui.theme.DishcoveryTheme
 import com.example.dishcovery.ui.theme.TextPrimary
 import com.example.dishcovery.ui.theme.TextSecondary
+import java.time.LocalDate
 
 @Composable
 fun DayMealPlanCard(
-    dayPlan: DayMealPlan,
+    mealPlan: MealPlan,
     onMealClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -52,13 +51,13 @@ fun DayMealPlanCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = dayPlan.dayName,
+                    text = mealPlan.date.dayOfWeek.toString(),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
                 )
                 Text(
-                    text = dayPlan.date,
+                    text = mealPlan.date.toString(),
                     fontSize = 14.sp,
                     color = TextSecondary
                 )
@@ -69,11 +68,11 @@ fun DayMealPlanCard(
             // Meals
             val mealTypes = listOf("Breakfast", "Lunch", "Dinner")
             mealTypes.forEachIndexed { index, mealType ->
-                val meal = dayPlan.meals.getOrNull(index)
+                val recipe = mealPlan.recipes.getOrNull(index)
 
-                if (meal != null) {
-                    MealCard(
-                        meal = meal,
+                if (recipe != null) {
+                    RecipeCardMini(
+                        recipe = recipe,
                         onClick = { onMealClick(mealType) }
                     )
                 } else {
@@ -96,14 +95,10 @@ fun DayMealPlanCard(
 fun DayMealPlanCardPreview() {
     DishcoveryTheme {
         DayMealPlanCard(
-            dayPlan = DayMealPlan(
-                dayName = "Monday",
-                date = "Nov 3",
-                meals = listOf(
-                    MealPlanItem(1, "Breakfast", "Toast with egg", "8:00AM", 400, R.drawable.ic_launcher_background),
-                    null,
-                    MealPlanItem(3, "Dinner", "Salmon Steak", "7:00PM", 700, R.drawable.ic_launcher_background)
-                )
+            mealPlan = MealPlan(
+                date = LocalDate.now(),
+                recipeIds = listOf("1", "2", "3"),
+                recipes = emptyList()
             ),
             onMealClick = {}
         )

@@ -1,21 +1,18 @@
 package com.example.dishcovery.features.viewmodels
 
-import android.content.Context
+import android.app.Application
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dishcovery.BuildConfig
 import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.data.remote.RetrofitInstance
+import com.example.dishcovery.data.repository.RecipeRepository
 import com.example.dishcovery.util.RecipeParser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.example.dishcovery.BuildConfig
-import com.example.dishcovery.data.repository.RecipeRepository
 
 data class RecipeListUiState(
     val recipes: List<Recipe> = emptyList(),
@@ -25,13 +22,9 @@ data class RecipeListUiState(
     val error: String? = null
 )
 
-class RecipeListViewModel() : ViewModel() {
+class RecipeListViewModel(application: Application) : AndroidViewModel(application) {
 
-    private lateinit var repository: RecipeRepository
-
-    fun initRepository(context: Context) {
-        repository = RecipeRepository(context)
-    }
+    private var repository: RecipeRepository = RecipeRepository(application)
     private val _uiState = MutableStateFlow(RecipeListUiState())
     val uiState: StateFlow<RecipeListUiState> = _uiState.asStateFlow()
 
