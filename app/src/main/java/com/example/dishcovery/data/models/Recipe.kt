@@ -4,6 +4,7 @@ data class Recipe(
     val id: Int,
     val name: String,
     val imageRes: Int,
+    val imageURL: String = "",
     val prepTime: Int,
     val cookTime: Int = 0,
     val calories: Int,

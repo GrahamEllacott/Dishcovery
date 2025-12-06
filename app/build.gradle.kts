@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -16,6 +18,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        //load the API for spoonacular
+        val secretProperties = Properties().apply {
+            load(rootProject.file("secret.properties").reader())
+        }
+        buildConfigField("String", "SPOON_API_KEY", secretProperties["SPOON_API_KEY"].toString())
     }
 
     buildTypes {
@@ -36,6 +44,8 @@ android {
     }
     buildFeatures {
         compose = true
+        //enable to load the API key from our custom properties file
+        buildConfig = true
     }
 }
 
@@ -59,6 +69,12 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
     implementation("androidx.navigation:navigation-compose:2.9.6")
+
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
     // Extra Material Icons
     implementation("androidx.compose.material:material-icons-extended:1.7.5")
 }
