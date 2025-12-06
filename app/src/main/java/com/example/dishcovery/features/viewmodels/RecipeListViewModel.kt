@@ -101,7 +101,7 @@ class RecipeListViewModel : ViewModel() {
         loadRecipes()
     }
 
-    fun toggleFavorite(recipeId: Int) {
+    fun toggleFavorite(recipeId: String) {
         val updatedRecipes = recipes.map { recipe ->
             if (recipe.id == recipeId) {
                 recipe.copy(isFavorite = !recipe.isFavorite)

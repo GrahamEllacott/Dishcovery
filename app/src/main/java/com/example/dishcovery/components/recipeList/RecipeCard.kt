@@ -57,9 +57,9 @@ fun RecipeCard(
         onClick = onCardClick
     ) {
         Column {
-            if(recipe.imageURL.isNotEmpty()){
+            if(recipe.imageUri?.isNotEmpty() ?: false){
                 AsyncImage(
-                    model = recipe.imageURL,
+                    model = recipe.imageUri,
                     contentDescription = recipe.name,
                     modifier = Modifier
                         .fillMaxWidth()

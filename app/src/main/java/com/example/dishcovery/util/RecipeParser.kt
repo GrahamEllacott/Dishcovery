@@ -10,7 +10,7 @@ class RecipeParser {
 
             // take the ApiRecipe object we get from our API calls and convert it to our simpler recipe format
 
-            val id: Int = (apiRecipe.id ?: 0).toInt()
+            val id: String = (apiRecipe.id ?: 0).toString()
             val name: String = apiRecipe.title ?: ""
             val imageRes: Int = R.drawable.ic_launcher_background
             val imageURL: String = apiRecipe.image ?: ""
@@ -44,7 +44,7 @@ class RecipeParser {
                 id = id,
                 name = name,
                 imageRes = imageRes,
-                imageURL = imageURL,
+                imageUri = imageURL,
                 prepTime = prepTime,
                 cookTime = cookTime,
                 calories = calories,
