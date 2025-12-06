@@ -44,7 +44,7 @@ import androidx.compose.runtime.collectAsState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeListScreen(
-    onRecipeClick: (Int) -> Unit = {},
+    onRecipeClick: (String) -> Unit = {},
     onAddRecipeClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {

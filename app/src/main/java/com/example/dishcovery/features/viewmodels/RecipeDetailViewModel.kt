@@ -19,7 +19,7 @@ class RecipeDetailViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(RecipeDetailUiState())
     val uiState: StateFlow<RecipeDetailUiState> = _uiState.asStateFlow()
 
-    fun loadRecipe(recipeId: Int) {
+    fun loadRecipe(recipeId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             // TODO: Replace with actual repository call
@@ -58,7 +58,7 @@ class RecipeDetailViewModel : ViewModel() {
         // TODO: Add to meal plan
     }
 
-    private fun getRecipeById(id: Int): Recipe {
+    private fun getRecipeById(id: String): Recipe {
         // TODO: Replace with actual repository call
         return Recipe(
             id = id,

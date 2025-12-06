@@ -87,11 +87,11 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object AddEditRecipe : Screen("add_edit_recipe?recipeId={recipeId}", "Add/Edit Recipe")
 }
 
-fun Screen.RecipeDetail.createRoute(recipeId: Int): String {
+fun Screen.RecipeDetail.createRoute(recipeId: String): String {
     return "recipe_detail/$recipeId"
 }
 
-fun Screen.AddEditRecipe.createRoute(recipeId: Int? = null): String {
+fun Screen.AddEditRecipe.createRoute(recipeId: String = ""): String {
     return if (recipeId != null) "add_edit_recipe?recipeId=$recipeId" else "add_edit_recipe"
 }
 
@@ -210,7 +210,7 @@ fun MainNavigation() {
                     }
                 )
             ) { backStackEntry ->
-                val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: 0
+                val recipeId = backStackEntry.arguments?.getString("recipeId") ?: ""
 
                 // Using sample date for now - to be replaced with actual data fetching
                 val recipeDetail = Recipe(
@@ -265,10 +265,10 @@ fun MainNavigation() {
                     }
                 )
             ) { backStackEntry ->
-                val recipeId = backStackEntry.arguments?.getInt("recipeId")
+                val recipeId = backStackEntry.arguments?.getString("recipeId")
 
                 // If recipeId is provided, fetch the recipe to edit
-                val recipeToEdit = if (recipeId != null && recipeId != -1) {
+                val recipeToEdit = if (recipeId != null && recipeId != "") {
                     // TODO: Fetch recipe from database
                     Recipe(
                         id = recipeId,
@@ -362,7 +362,6 @@ fun AddEditRecipeScreenWithPermissions(
 
     // Always show the screen (permissions are handled internally)
     AddEditRecipeScreen(
-        recipe = recipe,
         onSaveClick = onSaveClick,
         onCancelClick = onCancelClick
     )
