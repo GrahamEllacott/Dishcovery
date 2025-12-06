@@ -23,7 +23,7 @@ class RecipeParser {
             var isFavorite: Boolean = false
 
             val ingredients: List<String> = apiRecipe.extendedIngredients?.map { it.name ?: "" } ?: emptyList()
-            val instructions: List<String> = apiRecipe.analyzedInstructions?.firstOrNull()?.steps?.map { it.step ?: "" } ?: emptyList()
+            val instructions: List<String> = apiRecipe.analyzedInstructions?.flatMap { it.steps?.map { it.step ?: "" } ?: emptyList() } ?: emptyList()
 
             var calories: Int = 0
             var fat: Int = 0
