@@ -27,11 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,10 +34,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dishcovery.components.recipeList.CategoryFilter
 import com.example.dishcovery.components.recipeList.RecipeCard
 import com.example.dishcovery.components.recipeList.RecipeSearchBar
-import com.example.dishcovery.data.models.Recipe
+import com.example.dishcovery.features.viewmodels.RecipeListViewModel
+import androidx.compose.runtime.collectAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,41 +48,10 @@ fun RecipeListScreen(
     onAddRecipeClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("Dinner") }
+    val viewModel : RecipeListViewModel = viewModel()
 
     // Sample categories to be removed when API implemented
     val categories = listOf("All", "Breakfast", "Lunch", "Dinner", "Snacks")
-
-    // Sample recipes to be removed when API implemented
-    val recipes = remember {
-        mutableStateListOf(
-            Recipe(
-                id = "id1",
-                name = "Spaghetti Carbonara",
-                imageRes = R.drawable.ic_launcher_background,
-                prepTime = 25,
-                calories = 520,
-                category = "Dinner"
-            ),
-            Recipe(
-                id = "id2",
-                name = "Honey Garlic Chicken",
-                imageRes = R.drawable.ic_launcher_background,
-                prepTime = 35,
-                calories = 380,
-                category = "Dinner"
-            ),
-            Recipe(
-                id = "id3",
-                name = "Lobster Pasta",
-                imageRes = R.drawable.ic_launcher_background,
-                prepTime = 40,
-                calories = 450,
-                category = "Dinner"
-            )
-        )
-    }
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -145,8 +111,9 @@ fun RecipeListScreen(
 
             // Search Bar
             RecipeSearchBar(
-                searchQuery = searchQuery,
-                onSearchQueryChange = { searchQuery = it }
+                searchQuery = viewModel.uiState.collectAsState().value.searchQuery,
+                onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+                onSearchQuerySubmit = { viewModel.onSearchQuerySubmit() }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -154,8 +121,8 @@ fun RecipeListScreen(
             // Category Filter (LazyRow)
             CategoryFilter(
                 categories = categories,
-                selectedCategory = selectedCategory,
-                onCategorySelected = { selectedCategory = it }
+                selectedCategory = viewModel.uiState.collectAsState().value.selectedCategory,
+                onCategorySelected = { viewModel.onCategorySelected(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -165,12 +132,11 @@ fun RecipeListScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 80.dp)
             ) {
-                items(recipes) { recipe ->
+                items(viewModel.recipes) { recipe ->
                     RecipeCard(
                         recipe = recipe,
                         onFavoriteClick = {
-                            val index = recipes.indexOf(recipe)
-                            recipes[index] = recipe.copy(isFavorite = !recipe.isFavorite)
+                            viewModel.toggleFavorite(recipe.id)
                         },
                         onCardClick = { onRecipeClick(recipe.id) }
                     )
