@@ -49,7 +49,7 @@ class RecipeListViewModel : ViewModel() {
         filterRecipes()
     }
 
-    fun toggleFavorite(recipeId: Int) {
+    fun toggleFavorite(recipeId: String) {
         val updatedRecipes = _uiState.value.recipes.map { recipe ->
             if (recipe.id == recipeId) {
                 recipe.copy(isFavorite = !recipe.isFavorite)
@@ -75,7 +75,7 @@ class RecipeListViewModel : ViewModel() {
         // TODO: Remove when API is connected
         return listOf(
             Recipe(
-                id = 1,
+                id = "id1",
                 name = "Spaghetti Carbonara",
                 imageRes = com.example.dishcovery.R.drawable.ic_launcher_background,
                 prepTime = 15,
@@ -86,7 +86,7 @@ class RecipeListViewModel : ViewModel() {
                 instructions = listOf("Boil water", "Cook pasta", "Mix ingredients")
             ),
             Recipe(
-                id = 2,
+                id = "id2",
                 name = "Honey Garlic Chicken",
                 imageRes = com.example.dishcovery.R.drawable.ic_launcher_background,
                 prepTime = 20,

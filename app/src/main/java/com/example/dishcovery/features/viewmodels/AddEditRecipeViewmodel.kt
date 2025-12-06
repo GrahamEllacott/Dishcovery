@@ -3,13 +3,14 @@ package com.example.dishcovery.features.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dishcovery.data.models.Recipe
+import com.example.dishcovery.data.repository.RecipeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class AddEditRecipeUiState(
-    val recipeId: Int? = null,
+    val recipeId: String? = null,
     val recipeName: String = "",
     val selectedCategory: String = "Dinner",
     val ingredients: List<String> = listOf(""),
@@ -41,44 +42,65 @@ data class AddEditRecipeUiState(
     val fiberError: String? = null,
     val sodiumError: String? = null,
 
+    val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
     val error: String? = null,
     val showValidationErrors: Boolean = false
 )
 
-class AddEditRecipeViewModel : ViewModel() {
+class AddEditRecipeViewModel(
+    private val repository: RecipeRepository = RecipeRepository()
+) : ViewModel() {
+
     private val _uiState = MutableStateFlow(AddEditRecipeUiState())
     val uiState: StateFlow<AddEditRecipeUiState> = _uiState.asStateFlow()
 
     val categories = listOf("Breakfast", "Lunch", "Dinner", "Snacks", "Dessert")
 
-    fun loadRecipe(recipeId: Int?) {
-        if (recipeId != null) {
-            viewModelScope.launch {
-                try {
-                    val recipe = getRecipeById(recipeId)
+    /**
+     * Load a recipe from Firebase for editing
+     */
+    fun loadRecipe(recipeId: String?) {
+        if (recipeId.isNullOrEmpty()) return
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+
+            repository.getRecipeById(recipeId)
+                .onSuccess { recipe ->
+                    if (recipe != null) {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            recipeId = recipe.id,
+                            recipeName = recipe.name,
+                            selectedCategory = recipe.category,
+                            ingredients = recipe.ingredients.ifEmpty { listOf("") },
+                            instructions = recipe.instructions.ifEmpty { listOf("") },
+                            prepTime = if (recipe.prepTime > 0) "${recipe.prepTime}" else "",
+                            cookTime = if (recipe.cookTime > 0) "${recipe.cookTime}" else "",
+                            calories = if (recipe.calories > 0) recipe.calories.toString() else "",
+                            protein = if (recipe.protein > 0) recipe.protein.toString() else "",
+                            carbs = if (recipe.carbs > 0) recipe.carbs.toString() else "",
+                            fat = if (recipe.fat > 0) recipe.fat.toString() else "",
+                            fiber = if (recipe.fiber > 0) recipe.fiber.toString() else "",
+                            sodium = if (recipe.sodium > 0) recipe.sodium.toString() else "",
+                            imageUri = recipe.imageUri,
+                            imageRes = if (recipe.imageRes > 0) recipe.imageRes else null
+                        )
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            error = "Recipe not found"
+                        )
+                    }
+                }
+                .onFailure { e ->
                     _uiState.value = _uiState.value.copy(
-                        recipeId = recipe.id,
-                        recipeName = recipe.name,
-                        selectedCategory = recipe.category,
-                        ingredients = recipe.ingredients.ifEmpty { listOf("") },
-                        instructions = recipe.instructions.ifEmpty { listOf("") },
-                        prepTime = if (recipe.prepTime > 0) "${recipe.prepTime} min" else "",
-                        cookTime = if (recipe.cookTime > 0) "${recipe.cookTime} min" else "",
-                        calories = if (recipe.calories > 0) recipe.calories.toString() else "",
-                        protein = if (recipe.protein > 0) recipe.protein.toString() else "",
-                        carbs = if (recipe.carbs > 0) recipe.carbs.toString() else "",
-                        fat = if (recipe.fat > 0) recipe.fat.toString() else "",
-                        fiber = if (recipe.fiber > 0) recipe.fiber.toString() else "",
-                        sodium = if (recipe.sodium > 0) recipe.sodium.toString() else ""
-                    )
-                } catch (e: Exception) {
-                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
                         error = "Failed to load recipe: ${e.message}"
                     )
                 }
-            }
         }
     }
 
@@ -156,9 +178,9 @@ class AddEditRecipeViewModel : ViewModel() {
         val nonEmptyIngredients = ingredients.filter { it.trim().isNotEmpty() }
         return when {
             nonEmptyIngredients.isEmpty() -> "At least one ingredient is required"
-            nonEmptyIngredients.size < 2 -> "At least 2 ingredients are recommended for a complete recipe"
+            nonEmptyIngredients.size < 2 -> "At least 2 ingredients are recommended"
             nonEmptyIngredients.any { it.trim().length < 2 } -> "Each ingredient must be at least 2 characters"
-            nonEmptyIngredients.any { it.trim().length > 200 } -> "Ingredient description is too long (max 200 characters)"
+            nonEmptyIngredients.any { it.trim().length > 200 } -> "Ingredient too long (max 200 characters)"
             else -> null
         }
     }
@@ -204,16 +226,15 @@ class AddEditRecipeViewModel : ViewModel() {
         val nonEmptyInstructions = instructions.filter { it.trim().isNotEmpty() }
         return when {
             nonEmptyInstructions.isEmpty() -> "At least one instruction step is required"
-            nonEmptyInstructions.any { it.trim().length < 10 } -> "Each instruction must be at least 10 characters to be clear"
-            nonEmptyInstructions.any { it.trim().length > 500 } -> "Instruction is too long (max 500 characters per step)"
+            nonEmptyInstructions.any { it.trim().length < 10 } -> "Each instruction must be at least 10 characters"
+            nonEmptyInstructions.any { it.trim().length > 500 } -> "Instruction too long (max 500 characters)"
             else -> null
         }
     }
 
     // ==================== Time Fields ====================
     fun onPrepTimeChange(time: String) {
-        // Allow only digits and common time text
-        if (time.isEmpty() || time.matches(Regex("^[0-9\\s]*[mMinutes]*$"))) {
+        if (time.isEmpty() || time.all { it.isDigit() }) {
             _uiState.value = _uiState.value.copy(
                 prepTime = time,
                 prepTimeError = if (_uiState.value.showValidationErrors) {
@@ -224,8 +245,7 @@ class AddEditRecipeViewModel : ViewModel() {
     }
 
     fun onCookTimeChange(time: String) {
-        // Allow only digits and common time text
-        if (time.isEmpty() || time.matches(Regex("^[0-9\\s]*[mMinutes]*$"))) {
+        if (time.isEmpty() || time.all { it.isDigit() }) {
             _uiState.value = _uiState.value.copy(
                 cookTime = time,
                 cookTimeError = if (_uiState.value.showValidationErrors) {
@@ -237,24 +257,20 @@ class AddEditRecipeViewModel : ViewModel() {
 
     private fun validateTime(time: String, fieldName: String): String? {
         if (time.trim().isEmpty()) {
-            // Make prep time and cook time required
             return "$fieldName is required"
         }
 
-        val digits = time.filter { it.isDigit() }
-        val timeValue = digits.toIntOrNull()
-
+        val timeValue = time.toIntOrNull()
         return when {
-            timeValue == null -> "$fieldName must contain a valid number"
+            timeValue == null -> "$fieldName must be a valid number"
             timeValue <= 0 -> "$fieldName must be greater than 0"
-            timeValue > 1440 -> "$fieldName seems too long (max 1440 minutes/24 hours)"
+            timeValue > 1440 -> "$fieldName too long (max 1440 minutes)"
             else -> null
         }
     }
 
     // ==================== Nutrition Fields ====================
     fun onCaloriesChange(calories: String) {
-        // Allow only digits
         if (calories.isEmpty() || calories.all { it.isDigit() }) {
             _uiState.value = _uiState.value.copy(
                 calories = calories,
@@ -266,7 +282,6 @@ class AddEditRecipeViewModel : ViewModel() {
     }
 
     fun onFatChange(fat: String) {
-        // Allow digits and one decimal point
         if (fat.isEmpty() || fat.matches(Regex("^[0-9]*\\.?[0-9]*$"))) {
             _uiState.value = _uiState.value.copy(
                 fat = fat,
@@ -323,7 +338,6 @@ class AddEditRecipeViewModel : ViewModel() {
 
     private fun validateNutrition(value: String, fieldName: String, min: Number, max: Number): String? {
         if (value.trim().isEmpty()) {
-            // Make nutrition fields required
             return "$fieldName is required"
         }
 
@@ -331,7 +345,7 @@ class AddEditRecipeViewModel : ViewModel() {
         return when {
             numValue == null -> "$fieldName must be a valid number"
             numValue < min.toDouble() -> "$fieldName cannot be negative"
-            numValue > max.toDouble() -> "$fieldName value seems too high (max ${max})"
+            numValue > max.toDouble() -> "$fieldName too high (max ${max})"
             else -> null
         }
     }
@@ -370,7 +384,6 @@ class AddEditRecipeViewModel : ViewModel() {
 
     // ==================== Form Submission ====================
     fun saveRecipe(onSuccess: () -> Unit) {
-        // Enable validation error display
         _uiState.value = _uiState.value.copy(showValidationErrors = true)
 
         // Validate all fields
@@ -388,8 +401,6 @@ class AddEditRecipeViewModel : ViewModel() {
         val sodiumError = validateNutrition(_uiState.value.sodium, "Sodium", 0, 10000)
         val imageError = validateImage()
 
-
-        // Update state with all errors
         _uiState.value = _uiState.value.copy(
             recipeNameError = nameError,
             categoryError = categoryError,
@@ -406,12 +417,10 @@ class AddEditRecipeViewModel : ViewModel() {
             imageError = imageError
         )
 
-        // Check if there are any errors
         val hasErrors = listOf(
             nameError, categoryError, ingredientsError, instructionsError,
             prepTimeError, cookTimeError, caloriesError, fatError,
-            proteinError, carbsError, fiberError, sodiumError,
-            imageError
+            proteinError, carbsError, fiberError, sodiumError, imageError
         ).any { it != null }
 
         if (hasErrors) {
@@ -421,39 +430,52 @@ class AddEditRecipeViewModel : ViewModel() {
             return
         }
 
-        // Proceed with saving
+        // Save to Firebase
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSaving = true, error = null)
 
             try {
-                // TODO: Save to repository
                 val recipe = Recipe(
-                    id = _uiState.value.recipeId ?: System.currentTimeMillis().toInt(),
+                    id = _uiState.value.recipeId ?: "",
                     name = _uiState.value.recipeName.trim(),
                     category = _uiState.value.selectedCategory,
                     ingredients = _uiState.value.ingredients.filter { it.trim().isNotEmpty() },
                     instructions = _uiState.value.instructions.filter { it.trim().isNotEmpty() },
-                    prepTime = _uiState.value.prepTime.filter { it.isDigit() }.toIntOrNull() ?: 0,
-                    cookTime = _uiState.value.cookTime.filter { it.isDigit() }.toIntOrNull() ?: 0,
+                    prepTime = _uiState.value.prepTime.toIntOrNull() ?: 0,
+                    cookTime = _uiState.value.cookTime.toIntOrNull() ?: 0,
                     calories = _uiState.value.calories.toIntOrNull() ?: 0,
-                    protein = _uiState.value.protein.toIntOrNull() ?: 0,
-                    carbs = _uiState.value.carbs.toIntOrNull() ?: 0,
+                    protein = _uiState.value.protein.toDoubleOrNull()?.toInt() ?: 0,
+                    carbs = _uiState.value.carbs.toDoubleOrNull()?.toInt() ?: 0,
                     fat = _uiState.value.fat.toDoubleOrNull()?.toInt() ?: 0,
                     fiber = _uiState.value.fiber.toDoubleOrNull()?.toInt() ?: 0,
                     sodium = _uiState.value.sodium.toIntOrNull() ?: 0,
                     imageRes = _uiState.value.imageRes ?: 0,
-                    imageUri = _uiState.value.imageUri
+                    imageUri = _uiState.value.imageUri,
+                    updatedAt = System.currentTimeMillis()
                 )
 
-                // Simulate save operation
-                kotlinx.coroutines.delay(500)
+                // Add or update recipe
+                val result = if (_uiState.value.recipeId.isNullOrEmpty()) {
+                    repository.addRecipe(recipe)
+                } else {
+                    repository.updateRecipe(_uiState.value.recipeId!!, recipe)
+                        .map { "" } // Convert Unit to String for consistency
+                }
 
-                _uiState.value = _uiState.value.copy(
-                    isSaving = false,
-                    saveSuccess = true
-                )
-
-                onSuccess()
+                result
+                    .onSuccess {
+                        _uiState.value = _uiState.value.copy(
+                            isSaving = false,
+                            saveSuccess = true
+                        )
+                        onSuccess()
+                    }
+                    .onFailure { e ->
+                        _uiState.value = _uiState.value.copy(
+                            isSaving = false,
+                            error = "Failed to save recipe: ${e.message}"
+                        )
+                    }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
@@ -475,7 +497,6 @@ class AddEditRecipeViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(saveSuccess = false)
     }
 
-    // ==================== Helper Functions ====================
     fun hasUnsavedChanges(originalRecipe: Recipe?): Boolean {
         if (originalRecipe == null) {
             return _uiState.value.recipeName.isNotEmpty() ||
@@ -487,20 +508,5 @@ class AddEditRecipeViewModel : ViewModel() {
                 _uiState.value.selectedCategory != originalRecipe.category ||
                 _uiState.value.ingredients.filter { it.trim().isNotEmpty() } != originalRecipe.ingredients ||
                 _uiState.value.instructions.filter { it.trim().isNotEmpty() } != originalRecipe.instructions
-    }
-
-    private fun getRecipeById(id: Int): Recipe {
-        // TODO: Replace with actual repository call
-        return Recipe(
-            id = id,
-            name = "Spaghetti Carbonara",
-            imageRes = com.example.dishcovery.R.drawable.ic_launcher_background,
-            prepTime = 15,
-            cookTime = 10,
-            calories = 520,
-            category = "Dinner",
-            ingredients = listOf("400g spaghetti", "200g pancetta"),
-            instructions = listOf("Boil water", "Cook pasta")
-        )
     }
 }

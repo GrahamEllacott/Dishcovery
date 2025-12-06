@@ -47,7 +47,7 @@ import com.example.dishcovery.data.models.Recipe
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeListScreen(
-    onRecipeClick: (Int) -> Unit = {},
+    onRecipeClick: (String) -> Unit = {},
     onAddRecipeClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -61,7 +61,7 @@ fun RecipeListScreen(
     val recipes = remember {
         mutableStateListOf(
             Recipe(
-                id = 1,
+                id = "id1",
                 name = "Spaghetti Carbonara",
                 imageRes = R.drawable.ic_launcher_background,
                 prepTime = 25,
@@ -69,7 +69,7 @@ fun RecipeListScreen(
                 category = "Dinner"
             ),
             Recipe(
-                id = 2,
+                id = "id2",
                 name = "Honey Garlic Chicken",
                 imageRes = R.drawable.ic_launcher_background,
                 prepTime = 35,
@@ -77,7 +77,7 @@ fun RecipeListScreen(
                 category = "Dinner"
             ),
             Recipe(
-                id = 3,
+                id = "id3",
                 name = "Lobster Pasta",
                 imageRes = R.drawable.ic_launcher_background,
                 prepTime = 40,

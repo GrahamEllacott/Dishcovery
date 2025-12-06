@@ -53,7 +53,7 @@ class DashboardViewModel : ViewModel() {
         // TODO: Replace with actual data
         return listOf(
             Recipe(
-                id = 1,
+                id = "id1",
                 name = "Toast with egg",
                 imageRes = com.example.dishcovery.R.drawable.ic_launcher_background,
                 prepTime = 10,
@@ -61,7 +61,7 @@ class DashboardViewModel : ViewModel() {
                 category = "Breakfast"
             ),
             Recipe(
-                id = 2,
+                id = "id2",
                 name = "French Grated Carrot Salad",
                 imageRes = com.example.dishcovery.R.drawable.ic_launcher_background,
                 prepTime = 15,
@@ -69,7 +69,7 @@ class DashboardViewModel : ViewModel() {
                 category = "Lunch"
             ),
             Recipe(
-                id = 3,
+                id = "id3",
                 name = "Salmon Steak",
                 imageRes = com.example.dishcovery.R.drawable.ic_launcher_background,
                 prepTime = 25,

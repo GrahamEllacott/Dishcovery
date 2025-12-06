@@ -150,7 +150,7 @@ fun RecipeInfoItem(icon: ImageVector, text: String, color: Color) {
 fun RecipeCardPreview() {
     RecipeCard(
         recipe = Recipe(
-            id = 1,
+            id = "id1",
             name = "Pizza",
             imageRes = R.drawable.ic_launcher_background,
             prepTime = 30,
