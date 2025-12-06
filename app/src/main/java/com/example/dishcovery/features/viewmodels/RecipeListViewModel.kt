@@ -14,17 +14,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.dishcovery.BuildConfig
+import com.example.dishcovery.data.repository.RecipeRepository
 
 data class RecipeListUiState(
+    val recipes: List<Recipe> = emptyList(),
     val searchQuery: String = "",
     val selectedCategory: String = "All",
     val isLoading: Boolean = false,
     val error: String? = null
 )
 
-class RecipeListViewModel : ViewModel() {
-    var recipes by mutableStateOf(emptyList<Recipe>())
-        private set
+class RecipeListViewModel(
+    private val repository: RecipeRepository = RecipeRepository()
+) : ViewModel() {
     private val _uiState = MutableStateFlow(RecipeListUiState())
     val uiState: StateFlow<RecipeListUiState> = _uiState.asStateFlow()
 
@@ -41,6 +43,9 @@ class RecipeListViewModel : ViewModel() {
                 // GET RANDOM RESULTS
                 if(_uiState.value.searchQuery.isEmpty()){
 
+                    //get all recipes from firebase
+                    sampleRecipes = repository.getRecipes().getOrNull() ?: emptyList()
+
                     Log.d("RecipeListViewModel", "Loading random recipes")
 
                     // get a list of random recipes and parse them into our recipe format
@@ -48,7 +53,7 @@ class RecipeListViewModel : ViewModel() {
 
                     Log.d("RecipeListViewModel", "${response.recipes.count()} Recipes Loaded")
 
-                    sampleRecipes = response.recipes.map { apiRecipe -> RecipeParser.parse(apiRecipe) }
+                    sampleRecipes += response.recipes.map { apiRecipe -> RecipeParser.parse(apiRecipe) }
 
                     Log.d("RecipeListViewModel", "${sampleRecipes.count()} Recipes Parsed")
 
@@ -56,6 +61,13 @@ class RecipeListViewModel : ViewModel() {
                     //SEARCH FOR RESULTS
                     //TODO: Implement category filters
 
+                    //get all recipes from firebase
+                    sampleRecipes = repository.getRecipes().getOrNull() ?: emptyList()
+                    //filter by title
+                    sampleRecipes = sampleRecipes.filter { it.name.contains(_uiState.value.searchQuery, ignoreCase = true) }
+
+
+                    //get up to 10 results from spoonacular API
                     Log.d("RecipeListViewModel", "Searching for Recipes")
                     //use a search query to get a list of recipes
                     val response = RetrofitInstance.api.getSearchRecipes(BuildConfig.SPOON_API_KEY, _uiState.value.searchQuery, 10)
@@ -73,7 +85,7 @@ class RecipeListViewModel : ViewModel() {
                         // get the details from the recipe stubs and parse them into our recipe format
                         val recipeInfo = RetrofitInstance.api.getRecipeInformation(BuildConfig.SPOON_API_KEY, ids)
 
-                        sampleRecipes = recipeInfo.map { apiRecipe -> RecipeParser.parse(apiRecipe) }
+                        sampleRecipes += recipeInfo.map { apiRecipe -> RecipeParser.parse(apiRecipe) }
 
                         Log.d("RecipeListViewModel", "${sampleRecipes.count()} Recipes Parsed")
                     }
@@ -83,8 +95,10 @@ class RecipeListViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(error = e.message)
             }
 
-            _uiState.value = _uiState.value.copy(isLoading = false)
-            recipes = sampleRecipes
+            _uiState.value = _uiState.value.copy(
+                recipes = sampleRecipes,
+                isLoading = false
+            )
         }
     }
 
@@ -102,14 +116,14 @@ class RecipeListViewModel : ViewModel() {
     }
 
     fun toggleFavorite(recipeId: String) {
-        val updatedRecipes = recipes.map { recipe ->
+        val updatedRecipes = _uiState.value.recipes.map { recipe ->
             if (recipe.id == recipeId) {
                 recipe.copy(isFavorite = !recipe.isFavorite)
             } else {
                 recipe
             }
         }
-        recipes = updatedRecipes
+        _uiState.value = _uiState.value.copy(recipes = updatedRecipes)
     }
 
 }

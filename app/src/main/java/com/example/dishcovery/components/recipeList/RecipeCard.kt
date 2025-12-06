@@ -1,5 +1,6 @@
 package com.example.dishcovery.components.recipeList
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -59,7 +60,7 @@ fun RecipeCard(
         Column {
             if(recipe.imageUri?.isNotEmpty() ?: false){
                 AsyncImage(
-                    model = recipe.imageUri,
+                    model = Uri.parse(recipe.imageUri),
                     contentDescription = recipe.name,
                     modifier = Modifier
                         .fillMaxWidth()

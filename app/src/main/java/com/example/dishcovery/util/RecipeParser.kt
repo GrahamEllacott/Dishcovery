@@ -13,7 +13,7 @@ class RecipeParser {
             val id: String = (apiRecipe.id ?: 0).toString()
             val name: String = apiRecipe.title ?: ""
             val imageRes: Int = R.drawable.ic_launcher_background
-            val imageURL: String = apiRecipe.image ?: ""
+            val imageUri: String = apiRecipe.image ?: ""
             val prepTime: Int = apiRecipe.readyInMinutes?.toInt() ?: 0
             val cookTime: Int = apiRecipe.cookingMinutes?.toInt() ?: 0
             val category: String = ""
@@ -44,7 +44,7 @@ class RecipeParser {
                 id = id,
                 name = name,
                 imageRes = imageRes,
-                imageUri = imageURL,
+                imageUri = imageUri,
                 prepTime = prepTime,
                 cookTime = cookTime,
                 calories = calories,

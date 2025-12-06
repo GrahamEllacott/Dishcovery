@@ -1,6 +1,5 @@
 package com.example.dishcovery.features.screens
 
-import com.example.dishcovery.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,17 +39,19 @@ import com.example.dishcovery.components.recipeList.RecipeCard
 import com.example.dishcovery.components.recipeList.RecipeSearchBar
 import com.example.dishcovery.features.viewmodels.RecipeListViewModel
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeListScreen(
     onRecipeClick: (String) -> Unit = {},
     onAddRecipeClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel : RecipeListViewModel = viewModel()
 ) {
-    val viewModel : RecipeListViewModel = viewModel()
+    val uiState by viewModel.uiState.collectAsState()
 
-    // Sample categories to be removed when API implemented
+    // TODO: Sample categories to be removed when API implemented
     val categories = listOf("All", "Breakfast", "Lunch", "Dinner", "Snacks")
 
     Box(
@@ -111,7 +112,7 @@ fun RecipeListScreen(
 
             // Search Bar
             RecipeSearchBar(
-                searchQuery = viewModel.uiState.collectAsState().value.searchQuery,
+                searchQuery = uiState.searchQuery,
                 onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
                 onSearchQuerySubmit = { viewModel.onSearchQuerySubmit() }
             )
@@ -121,7 +122,7 @@ fun RecipeListScreen(
             // Category Filter (LazyRow)
             CategoryFilter(
                 categories = categories,
-                selectedCategory = viewModel.uiState.collectAsState().value.selectedCategory,
+                selectedCategory = uiState.selectedCategory,
                 onCategorySelected = { viewModel.onCategorySelected(it) }
             )
 
@@ -132,7 +133,7 @@ fun RecipeListScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 80.dp)
             ) {
-                items(viewModel.recipes) { recipe ->
+                items(uiState.recipes) { recipe ->
                     RecipeCard(
                         recipe = recipe,
                         onFavoriteClick = {
