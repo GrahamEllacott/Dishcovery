@@ -193,12 +193,7 @@ fun MainNavigation() {
                 RecipeListScreen(
                     viewModel = viewModel,
                     onRecipeClick = { recipeId ->
-                        // Get the cached recipe and pass it
-                        val recipe = viewModel.getCachedRecipe(recipeId)
                         navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
-
-                        // Store recipe in backstack entry
-                        navController.currentBackStackEntry?.savedStateHandle?.set("cached_recipe", recipe)
                     },
                     onAddRecipeClick = {
                         navController.navigate(Screen.AddEditRecipe.createRoute())
@@ -225,25 +220,19 @@ fun MainNavigation() {
             ) { backStackEntry ->
                 val recipeId = backStackEntry.arguments?.getString("recipeId") ?: ""
 
-                // Get cached recipe from previous screen
-                val previousBackStackEntry = remember(backStackEntry) {
-                    navController.previousBackStackEntry
-                }
-                val cachedRecipe = previousBackStackEntry?.savedStateHandle?.get<Recipe>("cached_recipe")
-
-                val viewModel: RecipeDetailViewModel = viewModel()
-
-                // Set cached recipe if available
-                LaunchedEffect(cachedRecipe) {
-                    cachedRecipe?.let { viewModel.setCachedRecipe(it) }
-                }
-
                 RecipeDetailScreen(
                     recipeId = recipeId,
-                    viewModel = viewModel,
                     onBackClick = { navController.popBackStack() },
                     onEditClick = {
                         navController.navigate(Screen.AddEditRecipe.createRoute(recipeId))
+                    },
+                    onDeleteSuccess = {
+                        // Navigate to Dashboard (Home) after successful deletion
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) {
+                                inclusive = false
+                            }
+                        }
                     }
                 )
             }

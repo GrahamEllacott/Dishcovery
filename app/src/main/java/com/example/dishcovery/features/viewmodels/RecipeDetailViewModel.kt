@@ -1,10 +1,12 @@
 package com.example.dishcovery.features.viewmodels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.data.repository.RecipeRepository
+import com.example.dishcovery.util.RecipeCache
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,15 +15,16 @@ import kotlinx.coroutines.launch
 data class RecipeDetailUiState(
     val recipe: Recipe? = null,
     val isLoading: Boolean = false,
+    val isSaving: Boolean = false,
+    val isDeleting: Boolean = false,
+    val saveSuccess: Boolean = false,
+    val deleteSuccess: Boolean = false,
     val error: String? = null
 )
 
 class RecipeDetailViewModel : ViewModel() {
 
     private lateinit var repository: RecipeRepository
-
-    // Add this to receive cached recipe
-    private var cachedRecipe: Recipe? = null
 
     private val _uiState = MutableStateFlow(RecipeDetailUiState())
     val uiState: StateFlow<RecipeDetailUiState> = _uiState.asStateFlow()
@@ -30,35 +33,59 @@ class RecipeDetailViewModel : ViewModel() {
         repository = RecipeRepository(context)
     }
 
-    // Add method to set cached recipe
-    fun setCachedRecipe(recipe: Recipe) {
-        cachedRecipe = recipe
-        _uiState.value = _uiState.value.copy(recipe = recipe)
-    }
-
     fun loadRecipe(recipeId: String) {
+        Log.d("RecipeDetailViewModel", "Loading recipe with ID: $recipeId")
+
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-            // If this is a temporary ID (from API), use cached recipe
-            if (recipeId.startsWith("temp_") && cachedRecipe != null) {
-                _uiState.value = _uiState.value.copy(
-                    recipe = cachedRecipe,
-                    isLoading = false
-                )
-                return@launch
-            }
+            // Check if this is a temp/API recipe
+            if (recipeId.startsWith("temp_")) {
+                Log.d("RecipeDetailViewModel", "This is a temp recipe, loading from cache")
+                val cachedRecipe = RecipeCache.get(recipeId)
 
-            // Otherwise load from Firebase
-            repository.getRecipeById(recipeId)
-                .onSuccess { recipe ->
+                if (cachedRecipe != null) {
+                    Log.d("RecipeDetailViewModel", "Found cached recipe: ${cachedRecipe.name}")
                     _uiState.value = _uiState.value.copy(
-                        recipe = recipe,
+                        recipe = cachedRecipe,
+                        isLoading = false,
+                        error = null
+                    )
+                } else {
+                    Log.e("RecipeDetailViewModel", "Cached recipe not found for ID: $recipeId")
+                    _uiState.value = _uiState.value.copy(
+                        recipe = null,
+                        error = "Recipe not found in cache",
                         isLoading = false
                     )
                 }
+                return@launch
+            }
+
+            // Load from Firebase for non-temp recipes
+            Log.d("RecipeDetailViewModel", "Loading from Firebase")
+            repository.getRecipeById(recipeId)
+                .onSuccess { recipe ->
+                    if (recipe != null) {
+                        Log.d("RecipeDetailViewModel", "Loaded recipe from Firebase: ${recipe.name}")
+                        _uiState.value = _uiState.value.copy(
+                            recipe = recipe,
+                            isLoading = false,
+                            error = null
+                        )
+                    } else {
+                        Log.e("RecipeDetailViewModel", "Recipe not found in Firebase")
+                        _uiState.value = _uiState.value.copy(
+                            recipe = null,
+                            error = "Recipe not found",
+                            isLoading = false
+                        )
+                    }
+                }
                 .onFailure { e ->
+                    Log.e("RecipeDetailViewModel", "Failed to load recipe: ${e.message}", e)
                     _uiState.value = _uiState.value.copy(
+                        recipe = null,
                         error = "Failed to load recipe: ${e.message}",
                         isLoading = false
                     )
@@ -66,10 +93,79 @@ class RecipeDetailViewModel : ViewModel() {
         }
     }
 
+    fun saveRecipeToFirebase(recipe: Recipe) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSaving = true, error = null)
+
+            try {
+                // Create a new recipe without the temp ID
+                val recipeToSave = recipe.copy(
+                    id = "", // Firebase will generate a new ID
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis(),
+                    checkedIngredients = emptyList(), // Reset checkboxes for new recipe
+                    checkedInstructions = emptyList()
+                )
+
+                repository.addRecipe(recipeToSave)
+                    .onSuccess { newRecipeId ->
+                        Log.d("RecipeDetailViewModel", "Recipe saved successfully with ID: $newRecipeId")
+                        _uiState.value = _uiState.value.copy(
+                            isSaving = false,
+                            saveSuccess = true
+                        )
+                    }
+                    .onFailure { e ->
+                        Log.e("RecipeDetailViewModel", "Failed to save recipe: ${e.message}", e)
+                        _uiState.value = _uiState.value.copy(
+                            isSaving = false,
+                            error = "Failed to save recipe: ${e.message}"
+                        )
+                    }
+            } catch (e: Exception) {
+                Log.e("RecipeDetailViewModel", "Exception while saving recipe: ${e.message}", e)
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    error = "Error: ${e.message}"
+                )
+            }
+        }
+    }
+
+    fun deleteRecipe(recipeId: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isDeleting = true, error = null)
+
+            try {
+                repository.deleteRecipe(recipeId)
+                    .onSuccess {
+                        Log.d("RecipeDetailViewModel", "Recipe deleted successfully")
+                        _uiState.value = _uiState.value.copy(
+                            isDeleting = false,
+                            deleteSuccess = true
+                        )
+                    }
+                    .onFailure { e ->
+                        Log.e("RecipeDetailViewModel", "Failed to delete recipe: ${e.message}", e)
+                        _uiState.value = _uiState.value.copy(
+                            isDeleting = false,
+                            error = "Failed to delete recipe: ${e.message}"
+                        )
+                    }
+            } catch (e: Exception) {
+                Log.e("RecipeDetailViewModel", "Exception while deleting recipe: ${e.message}", e)
+                _uiState.value = _uiState.value.copy(
+                    isDeleting = false,
+                    error = "Error: ${e.message}"
+                )
+            }
+        }
+    }
+
     fun toggleIngredient(index: Int) {
         val recipe = _uiState.value.recipe ?: return
 
-        // If this is an API recipe (temp ID), just update locally
+        // For temp/API recipes, update in cache only
         if (recipe.id.startsWith("temp_")) {
             val updatedCheckedIngredients = recipe.checkedIngredients.toMutableList()
             while (updatedCheckedIngredients.size < recipe.ingredients.size) {
@@ -80,7 +176,7 @@ class RecipeDetailViewModel : ViewModel() {
             }
 
             val updatedRecipe = recipe.copy(checkedIngredients = updatedCheckedIngredients)
-            cachedRecipe = updatedRecipe
+            RecipeCache.put(recipe.id, updatedRecipe)
             _uiState.value = _uiState.value.copy(recipe = updatedRecipe)
             return
         }
@@ -116,7 +212,7 @@ class RecipeDetailViewModel : ViewModel() {
     fun toggleInstruction(index: Int) {
         val recipe = _uiState.value.recipe ?: return
 
-        // If this is an API recipe (temp ID), just update locally
+        // For temp/API recipes, update in cache only
         if (recipe.id.startsWith("temp_")) {
             val updatedCheckedInstructions = recipe.checkedInstructions.toMutableList()
             while (updatedCheckedInstructions.size < recipe.instructions.size) {
@@ -127,7 +223,7 @@ class RecipeDetailViewModel : ViewModel() {
             }
 
             val updatedRecipe = recipe.copy(checkedInstructions = updatedCheckedInstructions)
-            cachedRecipe = updatedRecipe
+            RecipeCache.put(recipe.id, updatedRecipe)
             _uiState.value = _uiState.value.copy(recipe = updatedRecipe)
             return
         }
@@ -162,5 +258,13 @@ class RecipeDetailViewModel : ViewModel() {
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
+    }
+
+    fun clearSaveSuccess() {
+        _uiState.value = _uiState.value.copy(saveSuccess = false)
+    }
+
+    fun clearDeleteSuccess() {
+        _uiState.value = _uiState.value.copy(deleteSuccess = false)
     }
 }
