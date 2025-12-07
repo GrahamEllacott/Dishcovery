@@ -59,6 +59,7 @@ fun CategoryFilter(
     }
 }
 
+// Sample preview with sample categories
 @Preview(showBackground = true)
 @Composable
 fun CategoryFilterPreview() {

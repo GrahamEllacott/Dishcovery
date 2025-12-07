@@ -147,7 +147,7 @@ fun RecipeInfoItem(icon: ImageVector, text: String, color: Color) {
     }
 }
 
-
+// Sample preview with sample recipe
 @Preview(showBackground = true)
 @Composable
 fun RecipeCardPreview() {

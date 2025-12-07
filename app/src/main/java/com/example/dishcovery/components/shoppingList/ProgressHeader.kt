@@ -13,7 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dishcovery.ui.theme.DishcoveryTheme
-import com.example.dishcovery.ui.theme.TextSecondary
 import androidx.compose.ui.res.stringResource
 import com.example.dishcovery.R
 
@@ -23,11 +22,13 @@ fun ProgressHeader(
     totalItems: Int,
     modifier: Modifier = Modifier
 ) {
+    // Calculate progress percentage, handle division by zero
     val progress = if (totalItems > 0) checkedItems.toFloat() / totalItems else 0f
 
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
+        // Progress bar with custom styling
         LinearProgressIndicator(
             progress = { progress },
             modifier = Modifier
@@ -40,6 +41,7 @@ fun ProgressHeader(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Progress text (e.g., "13 of 20 items checked")
         Text(
             text = stringResource(R.string.items_checked, checkedItems, totalItems),
             fontSize = 14.sp,
@@ -49,6 +51,7 @@ fun ProgressHeader(
     }
 }
 
+// Sample preview
 @Preview(showBackground = true)
 @Composable
 fun ProgressHeaderPreview() {

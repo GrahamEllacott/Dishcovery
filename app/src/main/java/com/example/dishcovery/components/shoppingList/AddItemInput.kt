@@ -15,14 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dishcovery.ui.theme.DishcoveryTheme
-import com.example.dishcovery.ui.theme.TextPrimary
-import com.example.dishcovery.ui.theme.TextSecondary
 import androidx.compose.ui.res.stringResource
 import com.example.dishcovery.R
 
@@ -33,6 +30,7 @@ fun AddItemInput(
     onAddClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Container with rounded corners and shadow
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -45,6 +43,7 @@ fun AddItemInput(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Text input field with placeholder
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
@@ -55,6 +54,7 @@ fun AddItemInput(
                 ),
                 singleLine = true,
                 decorationBox = { innerTextField ->
+                    // Show placeholder when empty
                     if (value.isEmpty()) {
                         Text(
                             text = stringResource(R.string.add_custom_item),
@@ -68,6 +68,7 @@ fun AddItemInput(
 
             Spacer(modifier = Modifier.width(8.dp))
 
+            // Add button
             Surface(
                 shape = RoundedCornerShape(8.dp),
                 color = MaterialTheme.colorScheme.secondary,
@@ -86,6 +87,7 @@ fun AddItemInput(
     }
 }
 
+// Sample preview with empty input
 @Preview(showBackground = true)
 @Composable
 fun AddItemInputPreview() {

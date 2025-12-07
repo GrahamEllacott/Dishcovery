@@ -12,15 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dishcovery.data.models.ShoppingItem
 import com.example.dishcovery.ui.theme.DishcoveryTheme
-import com.example.dishcovery.ui.theme.TextPrimary
-import com.example.dishcovery.ui.theme.TextSecondary
 
 @Composable
 fun ShoppingItemRow(
@@ -28,6 +25,7 @@ fun ShoppingItemRow(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Container with rounded corners
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
@@ -40,10 +38,12 @@ fun ShoppingItemRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Checkbox and item details
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
+                // Interactive checkbox
                 Checkbox(
                     checked = item.isChecked,
                     onCheckedChange = onCheckedChange,
@@ -54,13 +54,16 @@ fun ShoppingItemRow(
                     modifier = Modifier.padding(end = 8.dp)
                 )
 
+                // Item name and quantity
                 Column {
+                    // Item name with strikethrough when checked
                     Text(
                         text = item.name,
                         fontSize = 16.sp,
                         color = if (item.isChecked) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                         textDecoration = if (item.isChecked) TextDecoration.LineThrough else TextDecoration.None
                     )
+                    // Item quantity (always subtle color)
                     Text(
                         text = item.quantity,
                         fontSize = 14.sp,
@@ -72,6 +75,7 @@ fun ShoppingItemRow(
     }
 }
 
+// Sample preview showing checked and unchecked items
 @Preview(showBackground = true)
 @Composable
 fun ShoppingItemRowPreview() {

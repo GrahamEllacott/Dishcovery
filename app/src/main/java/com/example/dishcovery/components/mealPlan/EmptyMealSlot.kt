@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,6 +33,7 @@ fun EmptyMealSlot(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Clickable container with dashed border style
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -45,6 +45,7 @@ fun EmptyMealSlot(
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
         )
     ) {
+        // Centered content with add icon and text
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -52,6 +53,7 @@ fun EmptyMealSlot(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Add icon
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = stringResource(R.string.add_meal_type, mealType),
@@ -59,6 +61,7 @@ fun EmptyMealSlot(
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
+            // "Add [MealType]" text
             Text(
                 text = stringResource(R.string.add_meal_type, mealType),
                 fontSize = 14.sp,
@@ -69,6 +72,7 @@ fun EmptyMealSlot(
     }
 }
 
+// Sample preview showing lunch slot
 @Preview(showBackground = true)
 @Composable
 fun EmptyMealSlotPreview() {

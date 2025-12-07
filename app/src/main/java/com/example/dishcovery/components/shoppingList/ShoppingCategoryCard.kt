@@ -21,8 +21,6 @@ import androidx.compose.ui.unit.sp
 import com.example.dishcovery.data.models.ShoppingCategory
 import com.example.dishcovery.data.models.ShoppingItem
 import com.example.dishcovery.ui.theme.DishcoveryTheme
-import com.example.dishcovery.ui.theme.TextPrimary
-import com.example.dishcovery.ui.theme.TextSecondary
 import androidx.compose.ui.res.stringResource
 import com.example.dishcovery.R
 
@@ -32,9 +30,11 @@ fun ShoppingCategoryCard(
     onItemCheckedChange: (ShoppingItem, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Calculate progress for display
     val checkedCount = category.items.count { it.isChecked }
     val totalCount = category.items.size
 
+    // Card container with secondary color theme
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -47,12 +47,13 @@ fun ShoppingCategoryCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Category header
+            // Category header with emoji, name, and progress
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Category emoji and name
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -69,6 +70,7 @@ fun ShoppingCategoryCard(
                     )
                 }
 
+                // Progress counter (e.g., "2/5")
                 Text(
                     text = stringResource(R.string.category_progress, checkedCount, totalCount),
                     fontSize = 16.sp,
@@ -79,7 +81,7 @@ fun ShoppingCategoryCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Category items
+            // List of shopping items in this category
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -87,7 +89,7 @@ fun ShoppingCategoryCard(
                     ShoppingItemRow(
                         item = item,
                         onCheckedChange = { checked ->
-                            onItemCheckedChange(item, checked)
+                            onItemCheckedChange(item, checked) // Forward callback
                         }
                     )
                 }
@@ -96,6 +98,7 @@ fun ShoppingCategoryCard(
     }
 }
 
+// Sample preview with produce category
 @Preview(showBackground = true)
 @Composable
 fun ShoppingCategoryCardPreview() {
