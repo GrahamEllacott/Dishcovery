@@ -76,7 +76,7 @@ fun AddItemInput(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.cd_add_item),
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier
                         .padding(8.dp)
                         .size(24.dp)

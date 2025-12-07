@@ -1,6 +1,5 @@
 package com.example.dishcovery.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -15,18 +14,19 @@ import androidx.compose.ui.platform.LocalContext
 private val DarkColorScheme = darkColorScheme(
     primary = DarkOliveGreen,
     secondary = DarkSageGreen,
-    tertiary = SageGreen,
+    tertiary = DarkSageTertiary,
     background = DarkBackground,
-    surface = Color(0xFF2C2C2C),
-    surfaceVariant = Color(0xFF3A3A3A),
-    surfaceContainer = Color(0xFF242424),
+    surface = DarkSurface,
+    surfaceVariant = DarkSurfaceVariant,
+    surfaceContainer = DarkSurfaceContainer,
     onPrimary = White,
-    onSecondary = White,
+    onSecondary = DarkTextPrimary,
+    onTertiary = DarkTextPrimary,
     onBackground = DarkTextPrimary,
     onSurface = DarkTextPrimary,
     onSurfaceVariant = DarkTextSecondary,
     error = WarningOrange,
-    errorContainer = BrownIcon
+    errorContainer = DarkErrorContainer
 )
 
 private val LightColorScheme = lightColorScheme(

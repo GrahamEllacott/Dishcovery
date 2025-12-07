@@ -53,7 +53,7 @@ fun WeekSelector(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = stringResource(R.string.cd_previous_week),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.onSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -62,7 +62,7 @@ fun WeekSelector(
                     text = formatWeekRange(currentWeek),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
 
@@ -76,7 +76,7 @@ fun WeekSelector(
                     Icon(
                         imageVector = Icons.Default.ArrowForward,
                         contentDescription = stringResource(R.string.cd_next_week),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.onSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                 }

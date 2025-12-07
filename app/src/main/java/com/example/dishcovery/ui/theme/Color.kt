@@ -13,10 +13,15 @@ val BrownIcon = Color(0xFF8B4513)
 
 // Dark Theme Colors
 val DarkOliveGreen = Color(0xFF7A8F3E)
-val DarkSageGreen = Color(0xFF9DB888)
+val DarkSageGreen = Color(0xFF5A6B47)
+val DarkSageTertiary = Color(0xFF6B7F54) // Darker version of sage green for better contrast
 val DarkBackground = Color(0xFF1C1B1F)
+val DarkSurface = Color(0xFF2C2C2C)
+val DarkSurfaceVariant = Color(0xFF3A3A3A)
+val DarkSurfaceContainer = Color(0xFF242424)
 val DarkTextPrimary = Color(0xFFE8E8E8)
 val DarkTextSecondary = Color(0xFFB0B0B0)
+val DarkErrorContainer = Color(0xFF5D2C0A) // Darker brown for dark theme
 
 // Neutral Colors
 val TextPrimary = Color(0xFF2C2C2C)
