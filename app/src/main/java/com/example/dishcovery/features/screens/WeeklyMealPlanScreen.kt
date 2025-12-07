@@ -1,15 +1,7 @@
 package com.example.dishcovery.features.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -20,23 +12,35 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dishcovery.components.mealPlan.DayMealPlanCard
+import com.example.dishcovery.components.mealPlan.RecipeSelectionDialog
 import com.example.dishcovery.components.mealPlan.WeekSelector
 import com.example.dishcovery.features.viewmodels.WeeklyMealPlanViewModel
-import com.example.dishcovery.ui.theme.DishcoveryTheme
 import java.time.LocalDate
 
 @Composable
 fun WeeklyMealPlanScreen(
-    onNavigateToRecipes: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val viewModel: WeeklyMealPlanViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
+
+    // Show recipe selection dialog when needed
+    if (uiState.showRecipeDialog) {
+        RecipeSelectionDialog(
+            recipes = uiState.allRecipes,
+            isLoading = uiState.isLoadingRecipes,
+            onRecipeSelected = { recipe ->
+                viewModel.addRecipeToMealPlan(recipe)
+            },
+            onDismiss = {
+                viewModel.hideRecipeSelectionDialog()
+            }
+        )
+    }
 
     Column(
         modifier = modifier
@@ -61,15 +65,12 @@ fun WeeklyMealPlanScreen(
             WeekSelector(
                 currentWeek = uiState.week.toString(),
                 onPreviousWeek = {
-                    // For now, just a placeholder
                     viewModel.previousWeek()
                 },
                 onNextWeek = {
-                    // For now, just a placeholder
                     viewModel.nextWeek()
                 },
                 onDateSelected = { selectedWeek: String ->
-                    // Update the current week when date is selected
                     viewModel.updateWeek(LocalDate.parse(selectedWeek))
                 }
             )
@@ -85,8 +86,12 @@ fun WeeklyMealPlanScreen(
                 DayMealPlanCard(
                     mealPlan = plan,
                     onMealClick = { mealType ->
-                        // Navigate to recipes page for now
-                        onNavigateToRecipes()
+                        // Show recipe selection dialog
+                        viewModel.showRecipeSelectionDialog(plan.date, mealType)
+                    },
+                    onRemoveRecipe = { recipeId ->
+                        // Remove recipe from meal plan
+                        viewModel.removeRecipeFromMealPlan(plan.date, recipeId)
                     }
                 )
             }
@@ -96,13 +101,5 @@ fun WeeklyMealPlanScreen(
                 Spacer(modifier = Modifier.height(80.dp))
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun WeeklyMealPlanScreenPreview() {
-    DishcoveryTheme {
-        WeeklyMealPlanScreen()
     }
 }

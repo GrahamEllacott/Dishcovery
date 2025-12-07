@@ -16,7 +16,14 @@ class RecipeParser {
             val imageUri: String = apiRecipe.image ?: ""
             val prepTime: Int = apiRecipe.readyInMinutes?.toInt() ?: 0
             val cookTime: Int = apiRecipe.cookingMinutes?.toInt() ?: 0
-            val category: String = ""
+            val dishTypes = apiRecipe.dishTypes ?: emptyList()
+            val category: String = when {
+                "lunch" in dishTypes -> "lunch"
+                "snack" in dishTypes -> "snack"
+                "breakfast" in dishTypes -> "breakfast"
+                "dinner" in dishTypes -> "dinner"
+                else -> "dinner"
+            }
 
             // all loaded recipes are not favorited
             // this will be changed by the user later

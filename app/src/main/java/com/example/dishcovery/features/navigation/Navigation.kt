@@ -201,11 +201,7 @@ fun MainNavigation() {
                 )
             }
             composable(Screen.Plan.route) {
-                WeeklyMealPlanScreen(
-                    onNavigateToRecipes = {
-                        navController.navigate(Screen.Recipe.route)
-                    }
-                )
+                WeeklyMealPlanScreen()
             }
             composable(Screen.Shopping.route) {
                 ShoppingListScreen()

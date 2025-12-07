@@ -3,7 +3,6 @@ package com.example.dishcovery.features.viewmodels
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dishcovery.data.MealPlanDBHelper
 import com.example.dishcovery.data.models.MealPlan
@@ -53,60 +52,82 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     fun loadDashboardData() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            // TODO: Replace with actual repository call
-            val meals = getTodaysMeals()
-            val nutrition = calculateNutrition(meals)
 
-            _uiState.value = _uiState.value.copy(
-                todaysMeals = meals,
-                nutritionSummary = nutrition,
-                isLoading = false
-            )
+            try {
+                val meals = getTodaysMeals()
+                val nutrition = calculateNutrition(meals)
+
+                _uiState.value = _uiState.value.copy(
+                    todaysMeals = meals,
+                    nutritionSummary = nutrition,
+                    isLoading = false,
+                    error = null
+                )
+            } catch (e: Exception) {
+                Log.e("DashboardViewModel", "Error loading dashboard data", e)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
         }
     }
 
     private suspend fun getTodaysMeals(): List<Recipe> {
-        val date = LocalDate.now()
-        var mealPlan = mealPlanDBHelper.getMealPlanByDate(date.toString())
+        val today = LocalDate.now()
+        var mealPlan = mealPlanDBHelper.getMealPlanByDate(today.toString())
 
-        // If no meal plan exists, create one
+        // If no meal plan exists, create one with 3 empty slots
         if (mealPlan == null) {
             mealPlan = MealPlan(
-                date = date,
-                recipeIds = emptyList(),
+                date = today,
+                recipeIds = listOf("", "", ""),
                 recipes = emptyList()
             )
-            Log.d("WeeklyMealPlanViewModel", "Creating new meal plan for $date")
+            Log.d("DashboardViewModel", "Creating new meal plan for today: $today")
             mealPlanDBHelper.insertMealPlan(mealPlan)
+            return emptyList()
         }
 
-        // If there are recipe IDs, fetch the actual recipes
-        if (mealPlan.recipeIds.isNotEmpty()) {
-            val recipes = mealPlan.recipeIds.mapNotNull { recipeId ->
-                // Get the recipe; mapNotNull will discard any null results
+        // Ensure we have exactly 3 slots
+        val recipeIds = mealPlan.recipeIds.toMutableList()
+        while (recipeIds.size < 3) {
+            recipeIds.add("")
+        }
+
+        // Fetch recipes only for non-empty IDs
+        val recipes = recipeIds.mapNotNull { recipeId ->
+            if (recipeId.isNotEmpty()) {
                 repository.getRecipeById(recipeId).getOrNull()
+            } else {
+                null
             }
         }
 
-        return mealPlan.recipes
+        Log.d("DashboardViewModel", "Today's meals: ${recipes.size} recipes found")
+        return recipes
     }
 
     private fun calculateNutrition(meals: List<Recipe>): NutritionSummary {
+        if (meals.isEmpty()) {
+            return NutritionSummary()
+        }
+
         val totalCalories = meals.sumOf { it.calories }
         val targetCalories = 2000
-        val caloriesPercent = (totalCalories.toFloat() / targetCalories.toFloat())
+        val caloriesPercent = (totalCalories.toFloat() / targetCalories.toFloat()).coerceIn(0f, 1f)
 
         val fatsGrams = meals.sumOf { it.fat }
         val targetFats = 75
-        val fatsPercent = (fatsGrams.toFloat() / targetFats.toFloat())
+        val fatsPercent = (fatsGrams.toFloat() / targetFats.toFloat()).coerceIn(0f, 1f)
 
         val proteinGrams = meals.sumOf { it.protein }
         val targetProtein = 60
-        val proteinPercent = (proteinGrams.toFloat() / targetProtein.toFloat())
+        val proteinPercent = (proteinGrams.toFloat() / targetProtein.toFloat()).coerceIn(0f, 1f)
 
         val carbsGrams = meals.sumOf { it.carbs }
         val targetCarbs = 325
-        val carbsPercent = (carbsGrams.toFloat() / targetCarbs.toFloat())
+        val carbsPercent = (carbsGrams.toFloat() / targetCarbs.toFloat()).coerceIn(0f, 1f)
 
         return NutritionSummary(
             totalCalories = totalCalories,
@@ -123,5 +144,4 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             carbsPercent = carbsPercent
         )
     }
-
 }
