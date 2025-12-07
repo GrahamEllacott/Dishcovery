@@ -206,7 +206,7 @@ fun MainNavigation() {
                 route = Screen.RecipeDetail.route,
                 arguments = listOf(
                     navArgument("recipeId") {
-                        type = NavType.IntType
+                        type = NavType.StringType
                     }
                 )
             ) { backStackEntry ->
