@@ -1,7 +1,11 @@
 package com.example.dishcovery.data.models
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Recipe(
-    val id: String = "", // String for Firebase document ID
+    val id: String = "",
     val name: String = "",
     val imageRes: Int = 0,
     val imageUri: String? = null,
@@ -9,7 +13,6 @@ data class Recipe(
     val cookTime: Int = 0,
     val calories: Int = 0,
     val category: String = "",
-    var isFavorite: Boolean = false,
     val ingredients: List<String> = emptyList(),
     val instructions: List<String> = emptyList(),
     val protein: Int = 0,
@@ -18,8 +21,10 @@ data class Recipe(
     val fiber: Int = 0,
     val sodium: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
-) {
+    val updatedAt: Long = System.currentTimeMillis(),
+    val checkedIngredients: List<Boolean> = emptyList(),
+    val checkedInstructions: List<Boolean> = emptyList(),
+) : Parcelable {
     // No-arg constructor for Firebase
     constructor() : this(
         id = "",
@@ -30,7 +35,6 @@ data class Recipe(
         cookTime = 0,
         calories = 0,
         category = "",
-        isFavorite = false,
         ingredients = emptyList(),
         instructions = emptyList(),
         protein = 0,
@@ -39,6 +43,8 @@ data class Recipe(
         fiber = 0,
         sodium = 0,
         createdAt = System.currentTimeMillis(),
-        updatedAt = System.currentTimeMillis()
+        updatedAt = System.currentTimeMillis(),
+        checkedIngredients = emptyList(),
+        checkedInstructions = emptyList()
     )
 }

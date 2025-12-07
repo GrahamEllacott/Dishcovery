@@ -38,11 +38,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun RecipeCard(
     recipe: Recipe,
-    onFavoriteClick: (Recipe) -> Unit,
     onCardClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -95,17 +95,6 @@ fun RecipeCard(
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f)
                     )
-
-                    IconButton(
-                        onClick = { onFavoriteClick(recipe) }
-                    ) {
-                        Icon(
-                            imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorite",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -116,13 +105,13 @@ fun RecipeCard(
                 ) {
                     RecipeInfoItem(
                         icon = Icons.Outlined.AccessTime,
-                        text = "${recipe.prepTime} min",
+                        text = stringResource(R.string.prep_time_min, recipe.prepTime),
                         color = MaterialTheme.colorScheme.primary
                     )
 
                     RecipeInfoItem(
                         icon = Icons.Outlined.LocalFireDepartment,
-                        text = "${recipe.calories} cal",
+                        text = stringResource(R.string.calories_count, recipe.calories),
                         color = MaterialTheme.colorScheme.error
                     )
 
@@ -171,7 +160,6 @@ fun RecipeCardPreview() {
             calories = 200,
             category = "Italian"
         ),
-        onFavoriteClick = {},
         onCardClick = {}
     )
 }

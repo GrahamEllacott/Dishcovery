@@ -1,37 +1,32 @@
 package com.example.dishcovery.features.viewmodels
 
-import android.content.Context
+import android.app.Application
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dishcovery.BuildConfig
+import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.data.remote.RetrofitInstance
+import com.example.dishcovery.data.repository.RecipeRepository
+import com.example.dishcovery.util.RecipeCache
 import com.example.dishcovery.util.RecipeParser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.example.dishcovery.BuildConfig
-import com.example.dishcovery.data.repository.RecipeRepository
 
 data class RecipeListUiState(
     val recipes: List<Recipe> = emptyList(),
     val searchQuery: String = "",
-    val selectedCategory: String = "All",
+    val selectedCategory: String = "All", // Note: Will be set to string resource in ViewModel init
     val isLoading: Boolean = false,
     val error: String? = null
 )
 
-class RecipeListViewModel() : ViewModel() {
+class RecipeListViewModel(application: Application) : AndroidViewModel(application) {
 
-    private lateinit var repository: RecipeRepository
-
-    fun initRepository(context: Context) {
-        repository = RecipeRepository(context)
-    }
+    private var repository: RecipeRepository = RecipeRepository(application)
     private val _uiState = MutableStateFlow(RecipeListUiState())
     val uiState: StateFlow<RecipeListUiState> = _uiState.asStateFlow()
 
@@ -39,63 +34,140 @@ class RecipeListViewModel() : ViewModel() {
         loadRecipes()
     }
 
+    fun loadMyRecipes() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            var sampleRecipes = emptyList<Recipe>()
+            try {
+                sampleRecipes = repository.getRecipes().getOrNull() ?: emptyList()
+
+                // Apply category filter if not "All" or "My Recipes"
+                val context = getApplication<Application>()
+                if (_uiState.value.selectedCategory !in listOf(context.getString(R.string.all), context.getString(R.string.title_my_recipes))) {
+                    val categoryFilter = _uiState.value.selectedCategory.lowercase()
+                    sampleRecipes = sampleRecipes.filter {
+                        it.category.lowercase() == categoryFilter
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("RecipeListViewModel", "Error loading recipes: $e", e)
+                _uiState.value = _uiState.value.copy(error = e.message)
+            }
+            _uiState.value = _uiState.value.copy(
+                recipes = sampleRecipes,
+                isLoading = false
+            )
+        }
+    }
+
     fun loadRecipes() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             var sampleRecipes = emptyList<Recipe>()
 
-            try{
-                // GET RANDOM RESULTS
-                if(_uiState.value.searchQuery.isEmpty()){
+            try {
+                // Determine the dish type for API filtering
+                val dishType = when (_uiState.value.selectedCategory.lowercase()) {
+                    "breakfast" -> "breakfast"
+                    "lunch" -> "lunch"
+                    "dinner" -> "main course"
+                    "snacks" -> "snack"
+                    else -> null // No filter for "All"
+                }
 
-                    //get all recipes from firebase
-                    sampleRecipes = repository.getRecipes().getOrNull() ?: emptyList()
-
-                    Log.d("RecipeListViewModel", "Loading random recipes")
-
-                    // get a list of random recipes and parse them into our recipe format
-                    val response = RetrofitInstance.api.getRandomRecipes(BuildConfig.SPOON_API_KEY, 10)
+                // Get random results
+                if (_uiState.value.searchQuery.isEmpty()) {
+                    // Get a list of random recipes and parse them into our recipe format
+                    val response = RetrofitInstance.api.getRandomRecipes(
+                        apiKey = BuildConfig.SPOON_API_KEY,
+                        number = 10,
+                        includeNutrition = true,
+                        tags = dishType
+                    )
 
                     Log.d("RecipeListViewModel", "${response.recipes.count()} Recipes Loaded")
 
-                    sampleRecipes += response.recipes.map { apiRecipe -> RecipeParser.parse(apiRecipe) }
+                    val apiRecipes = response.recipes.mapIndexed { index, apiRecipe ->
+                        val recipe = RecipeParser.parse(apiRecipe)
+                        // Assign temp ID
+                        val recipeWithId = recipe.copy(id = "temp_api_${System.currentTimeMillis()}_$index")
+                        // Cache the recipe
+                        RecipeCache.put(recipeWithId.id, recipeWithId)
+                        Log.d("RecipeListViewModel", "Cached recipe ${recipeWithId.id}: ${recipeWithId.name}")
+                        recipeWithId
+                    }
+
+                    sampleRecipes += apiRecipes
 
                     Log.d("RecipeListViewModel", "${sampleRecipes.count()} Recipes Parsed")
 
-                }else{
-                    //SEARCH FOR RESULTS
-                    //TODO: Implement category filters
+                } else {
+                    // SEARCH FOR RESULTS
 
-                    //get all recipes from firebase
-                    sampleRecipes = repository.getRecipes().getOrNull() ?: emptyList()
-                    //filter by title
-                    sampleRecipes = sampleRecipes.filter { it.name.contains(_uiState.value.searchQuery, ignoreCase = true) }
+                    // Get all recipes from firebase and filter
+                    var firebaseRecipes = repository.getRecipes().getOrNull() ?: emptyList()
 
+                    // Filter by search query
+                    firebaseRecipes = firebaseRecipes.filter {
+                        it.name.contains(_uiState.value.searchQuery, ignoreCase = true)
+                    }
 
-                    //get up to 10 results from spoonacular API
+                    // Filter by category if applicable
+                    if (dishType != null) {
+                        val categoryFilter = _uiState.value.selectedCategory.lowercase()
+                        firebaseRecipes = firebaseRecipes.filter {
+                            it.category.lowercase() == categoryFilter
+                        }
+                    }
+
+                    sampleRecipes += firebaseRecipes
+
+                    // Get up to 10 results from spoonacular API
                     Log.d("RecipeListViewModel", "Searching for Recipes")
-                    //use a search query to get a list of recipes
-                    val response = RetrofitInstance.api.getSearchRecipes(BuildConfig.SPOON_API_KEY, _uiState.value.searchQuery, 10)
+
+                    // Use a search query to get a list of recipes with optional type filter
+                    val response = RetrofitInstance.api.getSearchRecipes(
+                        apiKey = BuildConfig.SPOON_API_KEY,
+                        query = _uiState.value.searchQuery,
+                        number = 10,
+                        type = dishType
+                    )
 
                     Log.d("RecipeListViewModel", "${response.results.count()} Recipes Loaded")
 
-                    // get IDs for second request
+                    // Get IDs for second request
                     val ids = response.results.joinToString(",") { it.id.toString() }
 
-                    // if no recipes are found then show an error message
+                    // If no recipes are found then show an error message
                     if (ids.isEmpty()) {
-                        _uiState.value = _uiState.value.copy(error = "No recipes found")
-                    }else{
+                        if (firebaseRecipes.isEmpty()) {
+                            _uiState.value = _uiState.value.copy(error = getApplication<Application>().getString(R.string.error_no_recipes_found_vm))
+                        }
+                    } else {
                         Log.d("RecipeListViewModel", "Loading recipe details")
-                        // get the details from the recipe stubs and parse them into our recipe format
-                        val recipeInfo = RetrofitInstance.api.getRecipeInformation(BuildConfig.SPOON_API_KEY, ids)
+                        // Get the details from the recipe stubs and parse them into our recipe format
+                        val recipeInfo = RetrofitInstance.api.getRecipeInformation(
+                            apiKey = BuildConfig.SPOON_API_KEY,
+                            ids = ids,
+                            includeNutrition = true
+                        )
 
-                        sampleRecipes += recipeInfo.map { apiRecipe -> RecipeParser.parse(apiRecipe) }
+                        val apiRecipes = recipeInfo.mapIndexed { index, apiRecipe ->
+                            val recipe = RecipeParser.parse(apiRecipe)
+                            // Assign temp ID
+                            val recipeWithId = recipe.copy(id = "temp_search_${System.currentTimeMillis()}_$index")
+                            // Cache the recipe
+                            RecipeCache.put(recipeWithId.id, recipeWithId)
+                            Log.d("RecipeListViewModel", "Cached recipe ${recipeWithId.id}: ${recipeWithId.name}")
+                            recipeWithId
+                        }
+
+                        sampleRecipes += apiRecipes
 
                         Log.d("RecipeListViewModel", "${sampleRecipes.count()} Recipes Parsed")
                     }
                 }
-            }catch(e: Exception){
+            } catch (e: Exception) {
                 Log.e("RecipeListViewModel", "Error loading recipes: $e", e)
                 _uiState.value = _uiState.value.copy(error = e.message)
             }
@@ -117,18 +189,11 @@ class RecipeListViewModel() : ViewModel() {
 
     fun onCategorySelected(category: String) {
         _uiState.value = _uiState.value.copy(selectedCategory = category)
-        loadRecipes()
-    }
-
-    fun toggleFavorite(recipeId: String) {
-        val updatedRecipes = _uiState.value.recipes.map { recipe ->
-            if (recipe.id == recipeId) {
-                recipe.copy(isFavorite = !recipe.isFavorite)
-            } else {
-                recipe
-            }
+        val context = getApplication<Application>()
+        if (category == context.getString(R.string.title_my_recipes)) {
+            loadMyRecipes()
+        } else {
+            loadRecipes()
         }
-        _uiState.value = _uiState.value.copy(recipes = updatedRecipes)
     }
-
 }

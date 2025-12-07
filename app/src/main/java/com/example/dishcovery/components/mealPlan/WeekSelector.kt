@@ -1,41 +1,24 @@
 package com.example.dishcovery.components.mealPlan
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.dishcovery.ui.theme.DishcoveryTheme
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,14 +52,14 @@ fun WeekSelector(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Previous week",
+                        contentDescription = stringResource(R.string.cd_previous_week),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
 
                 Text(
-                    text = currentWeek,
+                    text = formatWeekRange(currentWeek),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.primary,
@@ -92,7 +75,7 @@ fun WeekSelector(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowForward,
-                        contentDescription = "Next week",
+                        contentDescription = stringResource(R.string.cd_next_week),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
@@ -110,32 +93,26 @@ fun WeekSelector(
                     TextButton(
                         onClick = {
                             datePickerState.selectedDateMillis?.let { millis ->
-                                val selectedDate = Date(millis)
-                                val calendar = Calendar.getInstance().apply {
-                                    time = selectedDate
-                                }
+                                // Convert millis to LocalDate
+                                val selectedDate = Instant.ofEpochMilli(millis)
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
 
-                                // Calculate week range
-                                calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-                                val startDate = calendar.time
+                                // Get the Monday of the selected week
+                                val monday = selectedDate.with(java.time.DayOfWeek.MONDAY)
 
-                                calendar.add(Calendar.DAY_OF_WEEK, 6)
-                                val endDate = calendar.time
-
-                                val dateFormat = SimpleDateFormat("MMM d", Locale.getDefault())
-                                val weekRange = "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}"
-
-                                onDateSelected(weekRange)
+                                // Return the Monday date as ISO format string
+                                onDateSelected(monday.toString())
                             }
                             showDatePicker = false
                         }
                     ) {
-                        Text("OK")
+                        Text(stringResource(R.string.button_ok))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDatePicker = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             ) {
@@ -145,15 +122,25 @@ fun WeekSelector(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun WeekSelectorPreview() {
-    DishcoveryTheme {
-        WeekSelector(
-            currentWeek = "Nov 3 - 9",
-            onPreviousWeek = {},
-            onNextWeek = {},
-            onDateSelected = {}
-        )
+/**
+ * Format the week range for display
+ * Input: ISO date string like "2024-01-08" (Monday)
+ * Output: "Jan 8 - 14" or "Dec 30 - Jan 5" for cross-month weeks
+ */
+private fun formatWeekRange(mondayDateString: String): String {
+    return try {
+        val monday = LocalDate.parse(mondayDateString)
+        val sunday = monday.plusDays(6)
+
+        val formatter = DateTimeFormatter.ofPattern("MMM d", Locale.getDefault())
+
+        // Check if the week spans across months
+        if (monday.month == sunday.month) {
+            "${formatter.format(monday)} - ${sunday.dayOfMonth}"
+        } else {
+            "${formatter.format(monday)} - ${formatter.format(sunday)}"
+        }
+    } catch (e: Exception) {
+        mondayDateString
     }
 }

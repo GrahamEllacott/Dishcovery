@@ -25,6 +25,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dishcovery.ui.theme.DishcoveryTheme
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @Composable
 fun EmptyMealSlot(
@@ -37,7 +39,7 @@ fun EmptyMealSlot(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         border = BorderStroke(
             width = 2.dp,
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
@@ -52,13 +54,13 @@ fun EmptyMealSlot(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add $mealType",
+                contentDescription = stringResource(R.string.add_meal_type, mealType),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Add $mealType",
+                text = stringResource(R.string.add_meal_type, mealType),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Medium

@@ -26,10 +26,8 @@ class MainActivity : ComponentActivity() {
         val allGranted = permissions.values.all { it }
         if (allGranted) {
             // All permissions granted
-            // You can show a toast or log if needed
         } else {
             // Some permissions denied
-            // You can show a message to user explaining why permissions are needed
         }
     }
 

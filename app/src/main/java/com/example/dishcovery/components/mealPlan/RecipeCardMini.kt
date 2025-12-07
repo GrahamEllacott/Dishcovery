@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,18 +21,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.dishcovery.R
-import com.example.dishcovery.data.models.MealPlanItem
-import com.example.dishcovery.ui.theme.DishcoveryTheme
+import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.ui.theme.TextPrimary
 import com.example.dishcovery.ui.theme.TextSecondary
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
+
 
 @Composable
-fun MealCard(
-    meal: MealPlanItem,
+fun RecipeCardMini(
+    recipe: Recipe,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -40,7 +41,7 @@ fun MealCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        color = Color.White
+        color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Row(
             modifier = Modifier
@@ -50,8 +51,8 @@ fun MealCard(
         ) {
             // Meal image
             Image(
-                painter = painterResource(id = meal.imageRes),
-                contentDescription = meal.recipeName,
+                painter = painterResource(id = recipe.imageRes),
+                contentDescription = recipe.name,
                 modifier = Modifier
                     .size(70.dp)
                     .clip(RoundedCornerShape(8.dp)),
@@ -65,40 +66,22 @@ fun MealCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "${meal.mealType} ${meal.time}",
+                    text = recipe.category,
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = meal.recipeName,
+                    text = recipe.name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${meal.calories}kcal",
+                    text = stringResource(R.string.calories_kcal, recipe.calories),
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MealCardPreview() {
-    DishcoveryTheme {
-        MealCard(
-            meal = MealPlanItem(
-                id = 1,
-                mealType = "Breakfast",
-                recipeName = "Toast with egg",
-                time = "8:00AM",
-                calories = 400,
-                imageRes = R.drawable.ic_launcher_background
-            ),
-            onClick = {}
-        )
     }
 }

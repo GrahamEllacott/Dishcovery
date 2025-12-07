@@ -178,14 +178,57 @@ class RecipeRepository(private val context: Context) {
         }
     }
 
+
     /**
-     * Toggle favorite status
+     * Toggle ingredient checkbox
      */
-    suspend fun toggleFavorite(recipeId: String, isFavorite: Boolean): Result<Unit> {
+    suspend fun toggleIngredient(recipeId: String, ingredientIndex: Int, isChecked: Boolean): Result<Unit> {
         return try {
-            recipesCollection.document(recipeId)
-                .update("isFavorite", isFavorite)
-                .await()
+            val recipe = getRecipeById(recipeId).getOrNull()
+            if (recipe != null) {
+                val updatedCheckedIngredients = recipe.checkedIngredients.toMutableList()
+
+                // Ensure list is the right size
+                while (updatedCheckedIngredients.size < recipe.ingredients.size) {
+                    updatedCheckedIngredients.add(false)
+                }
+
+                if (ingredientIndex in updatedCheckedIngredients.indices) {
+                    updatedCheckedIngredients[ingredientIndex] = isChecked
+                }
+
+                recipesCollection.document(recipeId)
+                    .update("checkedIngredients", updatedCheckedIngredients)
+                    .await()
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Toggle instruction checkbox
+     */
+    suspend fun toggleInstruction(recipeId: String, instructionIndex: Int, isChecked: Boolean): Result<Unit> {
+        return try {
+            val recipe = getRecipeById(recipeId).getOrNull()
+            if (recipe != null) {
+                val updatedCheckedInstructions = recipe.checkedInstructions.toMutableList()
+
+                // Ensure list is the right size
+                while (updatedCheckedInstructions.size < recipe.instructions.size) {
+                    updatedCheckedInstructions.add(false)
+                }
+
+                if (instructionIndex in updatedCheckedInstructions.indices) {
+                    updatedCheckedInstructions[instructionIndex] = isChecked
+                }
+
+                recipesCollection.document(recipeId)
+                    .update("checkedInstructions", updatedCheckedInstructions)
+                    .await()
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

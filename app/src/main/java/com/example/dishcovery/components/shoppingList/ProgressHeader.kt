@@ -14,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dishcovery.ui.theme.DishcoveryTheme
 import com.example.dishcovery.ui.theme.TextSecondary
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @Composable
 fun ProgressHeader(
@@ -39,9 +41,9 @@ fun ProgressHeader(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "$checkedItems of $totalItems items checked",
+            text = stringResource(R.string.items_checked, checkedItems, totalItems),
             fontSize = 14.sp,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
     }

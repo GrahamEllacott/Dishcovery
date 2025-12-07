@@ -31,6 +31,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.dishcovery.features.viewmodels.AddEditRecipeViewModel
 import java.io.File
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,14 +43,9 @@ fun AddEditRecipeScreen(
     modifier: Modifier = Modifier,
     viewModel: AddEditRecipeViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
-
-    val context = LocalContext.current
-
-    LaunchedEffect(Unit) {
-        viewModel.initRepository(context)
-    }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -56,8 +53,6 @@ fun AddEditRecipeScreen(
     var showExitDialog by remember { mutableStateOf(false) }
     var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
     var showMoreNutrition by remember { mutableStateOf(false) }
-
-
 
     // Gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -94,8 +89,8 @@ fun AddEditRecipeScreen(
     if (uiState.showImagePicker) {
         AlertDialog(
             onDismissRequest = { viewModel.hideImagePicker() },
-            title = { Text("Add Recipe Photo") },
-            text = { Text("Choose how you want to add a photo") },
+            title = { Text(stringResource(R.string.add_recipe_photo)) },
+            text = { Text(stringResource(R.string.choose_photo_source)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -105,11 +100,11 @@ fun AddEditRecipeScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.PhotoLibrary,
-                        contentDescription = "Gallery",
+                        contentDescription = stringResource(R.string.cd_gallery),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Gallery")
+                    Text(stringResource(R.string.gallery))
                 }
             },
             dismissButton = {
@@ -123,17 +118,17 @@ fun AddEditRecipeScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.CameraAlt,
-                            contentDescription = "Camera",
+                            contentDescription = stringResource(R.string.cd_camera),
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Camera")
+                        Text(stringResource(R.string.camera))
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
 
                     TextButton(onClick = { viewModel.hideImagePicker() }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             }
@@ -168,8 +163,8 @@ fun AddEditRecipeScreen(
     if (showExitDialog) {
         AlertDialog(
             onDismissRequest = { showExitDialog = false },
-            title = { Text("Discard Changes?") },
-            text = { Text("You have unsaved changes. Are you sure you want to exit?") },
+            title = { Text(stringResource(R.string.discard_changes)) },
+            text = { Text(stringResource(R.string.discard_changes_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -177,12 +172,12 @@ fun AddEditRecipeScreen(
                         onCancelClick()
                     }
                 ) {
-                    Text("Discard", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.discard), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showExitDialog = false }) {
-                    Text("Continue Editing")
+                    Text(stringResource(R.string.continue_editing))
                 }
             }
         )
@@ -233,13 +228,13 @@ fun AddEditRecipeScreen(
                     }) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
+                            contentDescription = stringResource(R.string.cd_close),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
 
                     Text(
-                        text = if (recipeId == null) "Add Recipe" else "Edit Recipe",
+                        text = if (recipeId == null) stringResource(R.string.title_add_recipe) else stringResource(R.string.title_edit_recipe),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -273,7 +268,7 @@ fun AddEditRecipeScreen(
                             uiState.imageUri != null -> {
                                 AsyncImage(
                                     model = Uri.parse(uiState.imageUri),
-                                    contentDescription = "Recipe Image",
+                                    contentDescription = stringResource(R.string.cd_recipe_image),
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize()
                                 )
@@ -289,7 +284,7 @@ fun AddEditRecipeScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Remove Image",
+                                        contentDescription = stringResource(R.string.cd_remove_image),
                                         tint = Color.White
                                     )
                                 }
@@ -297,7 +292,7 @@ fun AddEditRecipeScreen(
                             uiState.imageRes != null -> {
                                 Image(
                                     painter = painterResource(id = uiState.imageRes!!),
-                                    contentDescription = "Recipe Image",
+                                    contentDescription = stringResource(R.string.cd_recipe_image),
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize()
                                 )
@@ -313,7 +308,7 @@ fun AddEditRecipeScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Remove Image",
+                                        contentDescription = stringResource(R.string.cd_remove_image),
                                         tint = Color.White
                                     )
                                 }
@@ -322,13 +317,13 @@ fun AddEditRecipeScreen(
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Icon(
                                         imageVector = Icons.Outlined.CameraAlt,
-                                        contentDescription = "Add Picture",
+                                        contentDescription = stringResource(R.string.cd_add_picture),
                                         tint = Color.White,
                                         modifier = Modifier.size(40.dp)
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = "Tap to add picture",
+                                        text = stringResource(R.string.tap_to_add_picture),
                                         color = Color.White,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Medium
@@ -345,7 +340,7 @@ fun AddEditRecipeScreen(
                         modifier = Modifier.padding(top = 8.dp, start = 4.dp)
                     ) {
                         Text(
-                            text = "⚠",
+                            text = stringResource(R.string.warning_emoji),
                             color = MaterialTheme.colorScheme.error,
                             fontSize = 14.sp
                         )
@@ -362,7 +357,7 @@ fun AddEditRecipeScreen(
 
                 // Recipe Name
                 Text(
-                    text = "Recipe Name *",
+                    text = stringResource(R.string.recipe_name),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground
@@ -372,7 +367,7 @@ fun AddEditRecipeScreen(
                 OutlinedTextField(
                     value = uiState.recipeName,
                     onValueChange = { viewModel.onRecipeNameChange(it) },
-                    placeholder = { Text("e.g., Spaghetti Carbonara") },
+                    placeholder = { Text(stringResource(R.string.placeholder_recipe_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     isError = uiState.recipeNameError != null,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -388,7 +383,7 @@ fun AddEditRecipeScreen(
                         modifier = Modifier.padding(top = 4.dp)
                     ) {
                         Text(
-                            text = "⚠",
+                            text = stringResource(R.string.warning_emoji),
                             color = MaterialTheme.colorScheme.error,
                             fontSize = 14.sp
                         )
@@ -405,7 +400,7 @@ fun AddEditRecipeScreen(
 
                 // Category
                 Text(
-                    text = "Category *",
+                    text = stringResource(R.string.category),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground
@@ -423,7 +418,7 @@ fun AddEditRecipeScreen(
                         trailingIcon = {
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Dropdown",
+                                contentDescription = stringResource(R.string.cd_dropdown),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.clickable { categoryExpanded = true }
                             )
@@ -459,7 +454,7 @@ fun AddEditRecipeScreen(
 
                 // Ingredients
                 Text(
-                    text = "Ingredients *",
+                    text = stringResource(R.string.ingredients_label),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground
@@ -475,7 +470,7 @@ fun AddEditRecipeScreen(
                             value = ingredient,
                             onValueChange = { viewModel.updateIngredient(index, it) },
                             modifier = Modifier.weight(1f),
-                            placeholder = { Text("e.g., 400g spaghetti") },
+                            placeholder = { Text(stringResource(R.string.placeholder_ingredient)) },
                             isError = uiState.ingredientsError != null && ingredient.trim().length < 2 && uiState.showValidationErrors,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -488,7 +483,7 @@ fun AddEditRecipeScreen(
                         IconButton(onClick = { viewModel.removeIngredient(index) }) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Remove",
+                                contentDescription = stringResource(R.string.cd_remove),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -502,13 +497,13 @@ fun AddEditRecipeScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add",
+                        contentDescription = stringResource(R.string.cd_add),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Add Ingredients",
+                        text = stringResource(R.string.add_ingredients),
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -519,7 +514,7 @@ fun AddEditRecipeScreen(
                         modifier = Modifier.padding(start = 8.dp)
                     ) {
                         Text(
-                            text = "⚠",
+                            text = stringResource(R.string.warning_emoji),
                             color = MaterialTheme.colorScheme.error,
                             fontSize = 14.sp
                         )
@@ -536,7 +531,7 @@ fun AddEditRecipeScreen(
 
                 // Instructions
                 Text(
-                    text = "Instructions *",
+                    text = stringResource(R.string.instructions_label),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground
@@ -552,7 +547,7 @@ fun AddEditRecipeScreen(
                             value = instruction,
                             onValueChange = { viewModel.updateInstruction(index, it) },
                             modifier = Modifier.weight(1f),
-                            placeholder = { Text("Step ${index + 1}") },
+                            placeholder = { Text(stringResource(R.string.placeholder_step, index + 1)) },
                             minLines = 2,
                             isError = uiState.instructionsError != null && instruction.trim().length < 10 && uiState.showValidationErrors,
                             colors = OutlinedTextFieldDefaults.colors(
@@ -566,7 +561,7 @@ fun AddEditRecipeScreen(
                         IconButton(onClick = { viewModel.removeInstruction(index) }) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Remove",
+                                contentDescription = stringResource(R.string.cd_remove),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -580,13 +575,13 @@ fun AddEditRecipeScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add",
+                        contentDescription = stringResource(R.string.cd_add),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Add Steps",
+                        text = stringResource(R.string.add_steps),
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -597,7 +592,7 @@ fun AddEditRecipeScreen(
                         modifier = Modifier.padding(start = 8.dp)
                     ) {
                         Text(
-                            text = "⚠",
+                            text = stringResource(R.string.warning_emoji),
                             color = MaterialTheme.colorScheme.error,
                             fontSize = 14.sp
                         )
@@ -614,7 +609,7 @@ fun AddEditRecipeScreen(
 
                 // Time Section
                 Text(
-                    text = "Time *",
+                    text = stringResource(R.string.time_label),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground
@@ -627,7 +622,7 @@ fun AddEditRecipeScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Prep (min)",
+                            text = stringResource(R.string.prep_min),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -636,7 +631,7 @@ fun AddEditRecipeScreen(
                             value = uiState.prepTime,
                             onValueChange = { viewModel.onPrepTimeChange(it) },
                             modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("15") },
+                            placeholder = { Text(stringResource(R.string.placeholder_prep_time)) },
                             isError = uiState.prepTimeError != null,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -656,7 +651,7 @@ fun AddEditRecipeScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Cook (min)",
+                            text = stringResource(R.string.cook_min),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -665,7 +660,7 @@ fun AddEditRecipeScreen(
                             value = uiState.cookTime,
                             onValueChange = { viewModel.onCookTimeChange(it) },
                             modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("10") },
+                            placeholder = { Text(stringResource(R.string.placeholder_cook_time)) },
                             isError = uiState.cookTimeError != null,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -688,7 +683,7 @@ fun AddEditRecipeScreen(
 
                 // Nutrition Section
                 Text(
-                    text = "Nutrition *",
+                    text = stringResource(R.string.nutrition_label),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground
@@ -702,7 +697,7 @@ fun AddEditRecipeScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Calories",
+                            text = stringResource(R.string.calories),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -711,7 +706,7 @@ fun AddEditRecipeScreen(
                             value = uiState.calories,
                             onValueChange = { viewModel.onCaloriesChange(it) },
                             modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("520") },
+                            placeholder = { Text(stringResource(R.string.placeholder_calories)) },
                             isError = uiState.caloriesError != null,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -731,7 +726,7 @@ fun AddEditRecipeScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Fat (g)",
+                            text = stringResource(R.string.fat_g),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -740,7 +735,7 @@ fun AddEditRecipeScreen(
                             value = uiState.fat,
                             onValueChange = { viewModel.onFatChange(it) },
                             modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("19") },
+                            placeholder = { Text(stringResource(R.string.placeholder_fat)) },
                             isError = uiState.fatError != null,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -770,7 +765,7 @@ fun AddEditRecipeScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Protein (g)",
+                                text = stringResource(R.string.protein_g),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -779,7 +774,7 @@ fun AddEditRecipeScreen(
                                 value = uiState.protein,
                                 onValueChange = { viewModel.onProteinChange(it) },
                                 modifier = Modifier.fillMaxWidth(),
-                                placeholder = { Text("25") },
+                                placeholder = { Text(stringResource(R.string.placeholder_protein)) },
                                 isError = uiState.proteinError != null,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -799,7 +794,7 @@ fun AddEditRecipeScreen(
 
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Carbs (g)",
+                                text = stringResource(R.string.carbs_g),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -808,7 +803,7 @@ fun AddEditRecipeScreen(
                                 value = uiState.carbs,
                                 onValueChange = { viewModel.onCarbsChange(it) },
                                 modifier = Modifier.fillMaxWidth(),
-                                placeholder = { Text("45") },
+                                placeholder = { Text(stringResource(R.string.placeholder_carbs)) },
                                 isError = uiState.carbsError != null,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -836,7 +831,7 @@ fun AddEditRecipeScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Fiber (g)",
+                                text = stringResource(R.string.fiber_g),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -845,7 +840,7 @@ fun AddEditRecipeScreen(
                                 value = uiState.fiber,
                                 onValueChange = { viewModel.onFiberChange(it) },
                                 modifier = Modifier.fillMaxWidth(),
-                                placeholder = { Text("3") },
+                                placeholder = { Text(stringResource(R.string.placeholder_fiber)) },
                                 isError = uiState.fiberError != null,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -865,7 +860,7 @@ fun AddEditRecipeScreen(
 
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Sodium (mg)",
+                                text = stringResource(R.string.sodium_mg),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -874,7 +869,7 @@ fun AddEditRecipeScreen(
                                 value = uiState.sodium,
                                 onValueChange = { viewModel.onSodiumChange(it) },
                                 modifier = Modifier.fillMaxWidth(),
-                                placeholder = { Text("800") },
+                                placeholder = { Text(stringResource(R.string.placeholder_sodium)) },
                                 isError = uiState.sodiumError != null,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -902,13 +897,13 @@ fun AddEditRecipeScreen(
                 ) {
                     Icon(
                         imageVector = if (showMoreNutrition) Icons.Default.Remove else Icons.Default.Add,
-                        contentDescription = if (showMoreNutrition) "Show Less" else "Add More",
+                        contentDescription = if (showMoreNutrition) stringResource(R.string.show_less) else stringResource(R.string.add_more),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (showMoreNutrition) "Show Less" else "Add More",
+                        text = if (showMoreNutrition) stringResource(R.string.show_less) else stringResource(R.string.add_more),
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -938,7 +933,7 @@ fun AddEditRecipeScreen(
                             )
                         } else {
                             Text(
-                                text = "Save Recipe",
+                                text = stringResource(R.string.save_recipe),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -962,7 +957,7 @@ fun AddEditRecipeScreen(
                         shape = RoundedCornerShape(28.dp)
                     ) {
                         Text(
-                            text = "Reset",
+                            text = stringResource(R.string.reset),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )

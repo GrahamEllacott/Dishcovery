@@ -23,6 +23,8 @@ import com.example.dishcovery.data.models.ShoppingItem
 import com.example.dishcovery.ui.theme.DishcoveryTheme
 import com.example.dishcovery.ui.theme.TextPrimary
 import com.example.dishcovery.ui.theme.TextSecondary
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @Composable
 fun ShoppingCategoryCard(
@@ -63,15 +65,15 @@ fun ShoppingCategoryCard(
                         text = category.name,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                        color = MaterialTheme.colorScheme.onSecondary
                     )
                 }
 
                 Text(
-                    text = "$checkedCount/$totalCount",
+                    text = stringResource(R.string.category_progress, checkedCount, totalCount),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
                 )
             }
 

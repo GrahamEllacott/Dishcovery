@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import com.example.dishcovery.ui.theme.DishcoveryTheme
 import com.example.dishcovery.ui.theme.TextPrimary
 import com.example.dishcovery.ui.theme.TextSecondary
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @Composable
 fun AddItemInput(
@@ -34,7 +36,7 @@ fun AddItemInput(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surfaceVariant,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -49,15 +51,15 @@ fun AddItemInput(
                 modifier = Modifier.weight(1f),
                 textStyle = TextStyle(
                     fontSize = 16.sp,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 ),
                 singleLine = true,
                 decorationBox = { innerTextField ->
                     if (value.isEmpty()) {
                         Text(
-                            text = "Add custom item...",
+                            text = stringResource(R.string.add_custom_item),
                             fontSize = 16.sp,
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     innerTextField()
@@ -73,7 +75,7 @@ fun AddItemInput(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add item",
+                    contentDescription = stringResource(R.string.cd_add_item),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .padding(8.dp)

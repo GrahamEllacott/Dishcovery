@@ -1,5 +1,6 @@
 package com.example.dishcovery.features.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -26,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,7 +42,8 @@ import com.example.dishcovery.components.recipeList.RecipeSearchBar
 import com.example.dishcovery.features.viewmodels.RecipeListViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,14 +54,15 @@ fun RecipeListScreen(
     viewModel : RecipeListViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.initRepository(context)
-    }
-
-    // TODO: Sample categories to be removed when API implemented
-    val categories = listOf("All", "Breakfast", "Lunch", "Dinner", "Snacks")
+    val categories = listOf(
+        stringResource(R.string.title_my_recipes),
+        stringResource(R.string.all),
+        stringResource(R.string.category_breakfast),
+        stringResource(R.string.category_lunch),
+        stringResource(R.string.category_dinner),
+        stringResource(R.string.category_snacks)
+    )
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -76,7 +79,7 @@ fun RecipeListScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "My Recipes",
+                    text = stringResource(R.string.title_my_recipes),
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -92,7 +95,7 @@ fun RecipeListScreen(
                         IconButton(onClick = { /* Notifications */ }) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
-                                contentDescription = "Notifications",
+                                contentDescription = stringResource(R.string.cd_notifications),
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
@@ -107,7 +110,7 @@ fun RecipeListScreen(
                         IconButton(onClick = { /* Profile */ }) {
                             Icon(
                                 imageVector = Icons.Default.Person,
-                                contentDescription = "Profile",
+                                contentDescription = stringResource(R.string.cd_profile),
                                 tint = MaterialTheme.colorScheme.onSecondary
                             )
                         }
@@ -143,12 +146,23 @@ fun RecipeListScreen(
                 items(uiState.recipes) { recipe ->
                     RecipeCard(
                         recipe = recipe,
-                        onFavoriteClick = {
-                            viewModel.toggleFavorite(recipe.id)
-                        },
                         onCardClick = { onRecipeClick(recipe.id) }
                     )
                 }
+                // show error messages
+                uiState.error?.let { error ->
+                    item {
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+
+                        )
+                    }
+                }
+
             }
         }
 
@@ -164,9 +178,24 @@ fun RecipeListScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add Recipe",
+                contentDescription = stringResource(R.string.cd_add_recipe),
                 modifier = Modifier.size(32.dp)
             )
+        }
+
+        // Loading overlay
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
