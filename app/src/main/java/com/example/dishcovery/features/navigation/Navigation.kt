@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -46,6 +47,8 @@ import com.example.dishcovery.features.screens.RecipeListScreen
 import com.example.dishcovery.features.screens.ShoppingListScreen
 import com.example.dishcovery.features.screens.SplashScreen
 import com.example.dishcovery.features.screens.WeeklyMealPlanScreen
+import com.example.dishcovery.features.viewmodels.RecipeListViewModel
+import androidx.compose.runtime.collectAsState
 
 
 @Composable
@@ -183,7 +186,9 @@ fun MainNavigation() {
                 DashboardScreen()
             }
             composable(Screen.Recipe.route) {
+                val viewModel : RecipeListViewModel = viewModel()
                 RecipeListScreen(
+                    viewModel = viewModel,
                     onRecipeClick = { recipeId ->
                         navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
                     },
@@ -211,43 +216,13 @@ fun MainNavigation() {
                 )
             ) { backStackEntry ->
                 val recipeId = backStackEntry.arguments?.getString("recipeId") ?: ""
+                val listViewStackEntry = remember { navController.getBackStackEntry("recipe") }
+                val oldViewModel: RecipeListViewModel = viewModel(listViewStackEntry)
 
-                // Using sample date for now - to be replaced with actual data fetching
-                val recipeDetail = Recipe(
-                    id = recipeId,
-                    name = "Spaghetti Carbonara",
-                    imageRes = R.drawable.ic_launcher_background,
-                    prepTime = 15,
-                    cookTime = 10,
-                    calories = 520,
-                    category = "Dinner",
-                    isFavorite = true,
-                    protein = 28,
-                    carbs = 58,
-                    fat = 19,
-                    fiber = 3,
-                    sodium = 680,
-                    ingredients = listOf(
-                        "400g spaghetti",
-                        "200g pancetta or bacon, diced",
-                        "4 large eggs",
-                        "100g Parmesan cheese, grated",
-                        "2 cloves garlic, minced",
-                        "Salt and black pepper to taste",
-                        "Fresh parsley for garnish"
-                    ),
-                    instructions = listOf(
-                        "Bring a large pot of salted water to boil. Cook spaghetti according to package directions until al dente.",
-                        "While pasta cooks, heat a large skillet over medium heat. Add pancetta and cook until crispy, about 5-7 minutes.",
-                        "In a bowl, whisk together eggs, Parmesan cheese, and a generous amount of black pepper.",
-                        "Drain pasta, reserving 1 cup of pasta water. Add hot pasta to the skillet with pancetta.",
-                        "Remove from heat and quickly stir in the egg mixture, tossing constantly. Add pasta water as needed to create a creamy sauce.",
-                        "Season with salt and more pepper. Garnish with parsley and extra Parmesan."
-                    )
-                )
+                val recipeDetail = oldViewModel.uiState.collectAsState().value.recipes.find { it.id == recipeId }
 
                 RecipeDetailScreen(
-                    recipe = recipeDetail,
+                    recipe = recipeDetail!!,
                     onBackClick = { navController.popBackStack() },
                     onEditClick = {
                         navController.navigate(Screen.AddEditRecipe.createRoute(recipeId))
@@ -260,8 +235,8 @@ fun MainNavigation() {
                 route = Screen.AddEditRecipe.route,
                 arguments = listOf(
                     navArgument("recipeId") {
-                        type = NavType.IntType
-                        defaultValue = -1
+                        type = NavType.StringType
+                        defaultValue = ""
                     }
                 )
             ) { backStackEntry ->

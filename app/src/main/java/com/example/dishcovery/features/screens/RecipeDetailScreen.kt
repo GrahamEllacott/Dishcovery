@@ -1,6 +1,6 @@
 package com.example.dishcovery.features.screens
 
-import androidx.compose.foundation.Image
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,21 +44,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.dishcovery.data.models.Recipe
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeDetailScreen(
+    modifier: Modifier = Modifier,
     recipe: Recipe,
     onBackClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
     onAddToMealPlan: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     var isFavorite by remember { mutableStateOf(recipe.isFavorite) }
     val scrollState = rememberScrollState()
@@ -107,8 +107,8 @@ fun RecipeDetailScreen(
                     .height(200.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Image(
-                    painter = painterResource(id = recipe.imageRes),
+                AsyncImage(
+                    model = Uri.parse(recipe.imageUri),
                     contentDescription = recipe.name,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
