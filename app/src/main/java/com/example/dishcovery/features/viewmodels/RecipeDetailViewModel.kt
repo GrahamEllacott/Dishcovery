@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dishcovery.R
+import com.example.dishcovery.data.MealPlanDBHelper
+import com.example.dishcovery.data.models.MealPlan
 import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.data.repository.RecipeRepository
 import com.example.dishcovery.util.RecipeCache
@@ -12,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 data class RecipeDetailUiState(
     val recipe: Recipe? = null,
@@ -20,12 +23,15 @@ data class RecipeDetailUiState(
     val isDeleting: Boolean = false,
     val saveSuccess: Boolean = false,
     val deleteSuccess: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val showMealPlanDialog: Boolean = false,
+    val selectedMealIndex: Int = -1
 )
 
 class RecipeDetailViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: RecipeRepository = RecipeRepository(application)
+    private val mealPlanDBHelper: MealPlanDBHelper = MealPlanDBHelper(application)
 
     private val _uiState = MutableStateFlow(RecipeDetailUiState())
     val uiState: StateFlow<RecipeDetailUiState> = _uiState.asStateFlow()
@@ -263,5 +269,59 @@ class RecipeDetailViewModel(application: Application) : AndroidViewModel(applica
 
     fun clearDeleteSuccess() {
         _uiState.value = _uiState.value.copy(deleteSuccess = false)
+    }
+
+    fun showMealPlanDialog(mealIndex: Int) {
+        _uiState.value = _uiState.value.copy(
+            showMealPlanDialog = true,
+            selectedMealIndex = mealIndex
+        )
+    }
+
+    fun hideMealPlanDialog() {
+        _uiState.value = _uiState.value.copy(
+            showMealPlanDialog = false,
+            selectedMealIndex = -1
+        )
+    }
+
+    fun addToMealPlanToday(mealIndex: Int) {
+        viewModelScope.launch {
+            val recipe = _uiState.value.recipe ?: return@launch
+            val today = LocalDate.now()
+
+            if (mealIndex < 0 || mealIndex > 2) return@launch
+
+            var mealPlan = mealPlanDBHelper.getMealPlanByDate(today.toString())
+
+            if (mealPlan == null) {
+                // Create new meal plan with 3 empty slots
+                mealPlan = MealPlan(
+                    date = today,
+                    recipeIds = listOf("", "", ""),
+                    recipes = emptyList()
+                )
+                mealPlanDBHelper.insertMealPlan(mealPlan)
+            }
+
+            // Create a mutable list with exactly 3 slots
+            val updatedRecipeIds = mealPlan.recipeIds.toMutableList()
+
+            // Ensure we have 3 slots
+            while (updatedRecipeIds.size < 3) {
+                updatedRecipeIds.add("")
+            }
+
+            // Set the recipe at the specific meal index
+            updatedRecipeIds[mealIndex] = recipe.id
+
+            val updatedMealPlan = mealPlan.copy(recipeIds = updatedRecipeIds)
+            mealPlanDBHelper.updateMealPlan(updatedMealPlan)
+
+            Log.d("RecipeDetailViewModel", "Added recipe ${recipe.name} to today's meal plan at slot $mealIndex")
+
+            // Hide the dialog after successful addition
+            hideMealPlanDialog()
+        }
     }
 }

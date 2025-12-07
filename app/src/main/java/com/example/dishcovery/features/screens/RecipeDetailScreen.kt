@@ -146,6 +146,68 @@ fun RecipeDetailScreen(
         )
     }
 
+    // Meal plan selection dialog
+    if (uiState.showMealPlanDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.hideMealPlanDialog() },
+            title = {
+                Text(
+                    text = stringResource(R.string.title_select_meal_slot),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(R.string.select_meal_slot_message))
+
+                    // Breakfast option
+                    TextButton(
+                        onClick = { viewModel.addToMealPlanToday(0) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.meal_breakfast),
+                            fontSize = 16.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    // Lunch option
+                    TextButton(
+                        onClick = { viewModel.addToMealPlanToday(1) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.meal_lunch),
+                            fontSize = 16.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    // Dinner option
+                    TextButton(
+                        onClick = { viewModel.addToMealPlanToday(2) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.meal_dinner),
+                            fontSize = 16.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.hideMealPlanDialog() }
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -209,19 +271,45 @@ fun RecipeDetailScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp),
+                                .padding(vertical = 8.dp, horizontal = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = stringResource(R.string.add_to_meal_plan),
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            // "Add to Meal Plan" with Add icon button (FAB style)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {
+                                // Circular FAB-style icon button
+                                Surface(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clickable { viewModel.showMealPlanDialog(0) },
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = stringResource(R.string.add_to_meal_plan),
+                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                    }
+                                }
 
+                                Text(
+                                    text = stringResource(R.string.add_to_meal_plan),
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
 
-                            // Action icons
+                            // Edit and Delete action icons
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 IconButton(
                                     onClick = onEditClick,
