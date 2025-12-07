@@ -14,6 +14,7 @@
     <string name="title_meal_plan">Meal Plan</string>
     <string name="title_select_recipe">Select Recipe</string>
     <string name="title_delete_recipe">Delete Recipe?</string>
+    <string name="title_select_meal_slot">Select Meal Slot</string>
 
     <!-- Dashboard -->
     <string name="dashboard_title">Dishcovery</string>
@@ -107,6 +108,7 @@
     <string name="meal_breakfast">Breakfast</string>
     <string name="meal_lunch">Lunch</string>
     <string name="meal_dinner">Dinner</string>
+    <string name="select_meal_slot_message">Which meal would you like to add this recipe to?</string>
 
     <!-- Shopping List -->
     <string name="items_checked">%1$d of %2$d items checked</string>
