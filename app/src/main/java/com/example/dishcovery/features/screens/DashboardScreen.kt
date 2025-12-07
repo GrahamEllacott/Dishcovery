@@ -28,7 +28,10 @@ import androidx.compose.ui.res.stringResource
 import com.example.dishcovery.R
 
 @Composable
-fun DashboardScreen(modifier: Modifier = Modifier) {
+fun DashboardScreen(
+    modifier: Modifier = Modifier,
+    onRecipeClick: (String) -> Unit = {}
+) {
     val viewModel: DashboardViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
 
@@ -135,7 +138,8 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surface
-                                )
+                                ),
+                                onClick = { onRecipeClick(recipe.id) }
                             ) {
                                 Row(
                                     horizontalArrangement = Arrangement.SpaceBetween,

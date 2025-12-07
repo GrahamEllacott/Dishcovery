@@ -186,7 +186,11 @@ fun MainNavigation() {
                 )
             }
             composable(Screen.Home.route) {
-                DashboardScreen()
+                DashboardScreen(
+                    onRecipeClick = { recipeId ->
+                        navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
+                    }
+                )
             }
             composable(Screen.Recipe.route) {
                 val viewModel: RecipeListViewModel = viewModel()
