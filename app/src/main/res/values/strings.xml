@@ -199,6 +199,18 @@
     <string name="field_fat">Fat</string>
     <string name="field_protein">Protein</string>
     <string name="field_carbs">Carbs</string>
+
+    <!-- Dynamic Content Formatting -->
+    <string name="nutrition_calories_format">%d cal</string>
+    <string name="nutrition_fat_format">%d g</string>
+    <string name="nutrition_protein_format">%d g</string>
+    <string name="nutrition_fiber_format">%d g</string>
+    <string name="nutrition_carbs_format">%d g</string>
+    <string name="nutrition_sodium_format">%d mg</string>
+    <string name="calories_kcal_format">%dkcal</string>
+    <string name="total_calories_format">%d cals</string>
+    <string name="nutrition_percent_format">%d%%</string>
+    <string name="nutrition_percent_grams_format">%1$d%% %2$dg</string>
     <string name="field_fiber">Fiber</string>
     <string name="field_sodium">Sodium</string>
 

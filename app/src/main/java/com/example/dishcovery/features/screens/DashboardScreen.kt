@@ -188,7 +188,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                             maxLines = 1
                                         )
                                         Text(
-                                            "${recipe.calories}kcal",
+                                            stringResource(R.string.calories_kcal_format, recipe.calories),
                                             fontSize = 16.sp,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -296,7 +296,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                                 horizontalAlignment = Alignment.CenterHorizontally,
                                             ) {
                                                 Text(
-                                                    "${uiState.nutritionSummary.totalCalories} cals",
+                                                    stringResource(R.string.total_calories_format, uiState.nutritionSummary.totalCalories),
                                                     fontSize = 14.sp,
                                                     style = TextStyle(
                                                         color = MaterialTheme.colorScheme.primary,
@@ -305,7 +305,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                                     )
                                                 )
                                                 Text(
-                                                    "${(uiState.nutritionSummary.caloriesPercent * 100).toInt()}%",
+                                                    stringResource(R.string.nutrition_percent_format, (uiState.nutritionSummary.caloriesPercent * 100).toInt()),
                                                     fontSize = 14.sp,
                                                     style = TextStyle(
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -333,7 +333,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                                 )
                                                 Spacer(modifier = Modifier.width(10.dp))
                                                 Text(
-                                                    "${(uiState.nutritionSummary.fatsPercent * 100).toInt()}% ${uiState.nutritionSummary.fatsGrams}g",
+                                                    stringResource(R.string.nutrition_percent_grams_format, (uiState.nutritionSummary.fatsPercent * 100).toInt(), uiState.nutritionSummary.fatsGrams),
                                                     fontSize = 13.sp,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -359,7 +359,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                                 )
                                                 Spacer(modifier = Modifier.width(10.dp))
                                                 Text(
-                                                    "${(uiState.nutritionSummary.proteinPercent * 100).toInt()}% ${uiState.nutritionSummary.proteinGrams}g",
+                                                    stringResource(R.string.nutrition_percent_grams_format, (uiState.nutritionSummary.proteinPercent * 100).toInt(), uiState.nutritionSummary.proteinGrams),
                                                     fontSize = 13.sp,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -385,7 +385,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                                 )
                                                 Spacer(modifier = Modifier.width(10.dp))
                                                 Text(
-                                                    "${(uiState.nutritionSummary.carbsPercent * 100).toInt()}% ${uiState.nutritionSummary.carbsGrams}g",
+                                                    stringResource(R.string.nutrition_percent_grams_format, (uiState.nutritionSummary.carbsPercent * 100).toInt(), uiState.nutritionSummary.carbsGrams),
                                                     fontSize = 13.sp,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )

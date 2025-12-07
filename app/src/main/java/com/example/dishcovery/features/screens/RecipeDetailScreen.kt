@@ -347,8 +347,8 @@ fun RecipeDetailScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        NutritionItem(stringResource(R.string.calories), "${recipe.calories} cal")
-                                        NutritionItem(stringResource(R.string.nutrition_fat), "${recipe.fat} g")
+                                        NutritionItem(stringResource(R.string.calories), stringResource(R.string.nutrition_calories_format, recipe.calories))
+                                        NutritionItem(stringResource(R.string.nutrition_fat), stringResource(R.string.nutrition_fat_format, recipe.fat))
                                     }
 
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -357,8 +357,8 @@ fun RecipeDetailScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        NutritionItem(stringResource(R.string.nutrition_protein), "${recipe.protein} g")
-                                        NutritionItem(stringResource(R.string.nutrition_fiber), "${recipe.fiber} g")
+                                        NutritionItem(stringResource(R.string.nutrition_protein), stringResource(R.string.nutrition_protein_format, recipe.protein))
+                                        NutritionItem(stringResource(R.string.nutrition_fiber), stringResource(R.string.nutrition_fiber_format, recipe.fiber))
                                     }
 
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -367,8 +367,8 @@ fun RecipeDetailScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        NutritionItem(stringResource(R.string.nutrition_carbs), "${recipe.carbs} g")
-                                        NutritionItem(stringResource(R.string.nutrition_sodium), "${recipe.sodium} mg")
+                                        NutritionItem(stringResource(R.string.nutrition_carbs), stringResource(R.string.nutrition_carbs_format, recipe.carbs))
+                                        NutritionItem(stringResource(R.string.nutrition_sodium), stringResource(R.string.nutrition_sodium_format, recipe.sodium))
                                     }
                                 }
                             }
