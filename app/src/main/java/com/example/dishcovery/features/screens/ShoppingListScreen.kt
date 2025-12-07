@@ -87,7 +87,7 @@ fun ShoppingListScreen(
 
             OutlinedButton(
                 onClick = {
-                    viewModel.clearAllChecked()
+                    viewModel.toggleHideChecked()
                 },
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
@@ -96,7 +96,7 @@ fun ShoppingListScreen(
                 )
             ) {
                 Text(
-                    text = "Clear Checked",
+                    text = if (uiState.hideChecked) "Show All" else "Hide Checked",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )

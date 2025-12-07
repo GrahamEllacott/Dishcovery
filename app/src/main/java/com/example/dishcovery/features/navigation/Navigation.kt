@@ -1,6 +1,7 @@
 package com.example.dishcovery.features.navigation
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -49,6 +50,7 @@ import com.example.dishcovery.features.screens.SplashScreen
 import com.example.dishcovery.features.screens.WeeklyMealPlanScreen
 import com.example.dishcovery.features.viewmodels.RecipeListViewModel
 import androidx.compose.runtime.collectAsState
+import com.example.dishcovery.features.viewmodels.RecipeDetailViewModel
 
 
 @Composable
@@ -98,6 +100,7 @@ fun Screen.AddEditRecipe.createRoute(recipeId: String = ""): String {
     return if (recipeId != null) "add_edit_recipe?recipeId=$recipeId" else "add_edit_recipe"
 }
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 fun MainNavigation() {
     val navController = rememberNavController()
@@ -186,11 +189,16 @@ fun MainNavigation() {
                 DashboardScreen()
             }
             composable(Screen.Recipe.route) {
-                val viewModel : RecipeListViewModel = viewModel()
+                val viewModel: RecipeListViewModel = viewModel()
                 RecipeListScreen(
                     viewModel = viewModel,
                     onRecipeClick = { recipeId ->
+                        // Get the cached recipe and pass it
+                        val recipe = viewModel.getCachedRecipe(recipeId)
                         navController.navigate(Screen.RecipeDetail.createRoute(recipeId))
+
+                        // Store recipe in backstack entry
+                        navController.currentBackStackEntry?.savedStateHandle?.set("cached_recipe", recipe)
                     },
                     onAddRecipeClick = {
                         navController.navigate(Screen.AddEditRecipe.createRoute())
@@ -216,19 +224,27 @@ fun MainNavigation() {
                 )
             ) { backStackEntry ->
                 val recipeId = backStackEntry.arguments?.getString("recipeId") ?: ""
-                val listViewStackEntry = remember { navController.getBackStackEntry("recipe") }
-                val oldViewModel: RecipeListViewModel = viewModel(listViewStackEntry)
 
-                val recipeDetail = oldViewModel.uiState.collectAsState().value.recipes.find { it.id == recipeId }
+                // Get cached recipe from previous screen
+                val previousBackStackEntry = remember(backStackEntry) {
+                    navController.previousBackStackEntry
+                }
+                val cachedRecipe = previousBackStackEntry?.savedStateHandle?.get<Recipe>("cached_recipe")
+
+                val viewModel: RecipeDetailViewModel = viewModel()
+
+                // Set cached recipe if available
+                LaunchedEffect(cachedRecipe) {
+                    cachedRecipe?.let { viewModel.setCachedRecipe(it) }
+                }
 
                 RecipeDetailScreen(
-                    recipe = recipeDetail!!,
+                    recipeId = recipeId,
+                    viewModel = viewModel,
                     onBackClick = { navController.popBackStack() },
                     onEditClick = {
                         navController.navigate(Screen.AddEditRecipe.createRoute(recipeId))
-                    },
-                    onDeleteClick = { /* Handle delete */ },
-                    onAddToMealPlan = { /* Handle add to meal plan */ }
+                    }
                 )
             }
             composable(
@@ -236,48 +252,16 @@ fun MainNavigation() {
                 arguments = listOf(
                     navArgument("recipeId") {
                         type = NavType.StringType
-                        defaultValue = ""
+                        nullable = true
+                        defaultValue = null
                     }
                 )
             ) { backStackEntry ->
                 val recipeId = backStackEntry.arguments?.getString("recipeId")
 
-                // If recipeId is provided, fetch the recipe to edit
-                val recipeToEdit = if (recipeId != null && recipeId != "") {
-                    // TODO: Fetch recipe from database
-                    Recipe(
-                        id = recipeId,
-                        name = "Spaghetti Carbonara",
-                        imageRes = R.drawable.ic_launcher_background,
-                        prepTime = 15,
-                        cookTime = 10,
-                        calories = 520,
-                        category = "Dinner",
-                        isFavorite = true,
-                        protein = 28,
-                        carbs = 58,
-                        fat = 19,
-                        fiber = 3,
-                        sodium = 680,
-                        ingredients = listOf(
-                            "400g spaghetti",
-                            "200g pancetta or bacon, diced",
-                            "4 large eggs",
-                            "100g Parmesan cheese, grated"
-                        ),
-                        instructions = listOf(
-                            "Bring a large pot of salted water to boil. Cook spaghetti according to package directions until al dente.",
-                            "While pasta cooks, heat a large skillet over medium heat. Add pancetta and cook until crispy, about 5-7 minutes.",
-                            "In a bowl, whisk together eggs, Parmesan cheese, and a generous amount of black pepper."
-                        )
-                    )
-                } else null
-
-                // Wrap AddEditRecipeScreen with permission handler
                 AddEditRecipeScreenWithPermissions(
-                    recipe = recipeToEdit,
+                    recipeId = recipeId, // Pass recipeId instead of recipe object
                     onSaveClick = {
-                        // TODO: Save recipe to database
                         navController.popBackStack()
                     },
                     onCancelClick = {
@@ -294,7 +278,7 @@ fun MainNavigation() {
  */
 @Composable
 fun AddEditRecipeScreenWithPermissions(
-    recipe: Recipe?,
+    recipeId: String?,
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit
 ) {
@@ -335,8 +319,9 @@ fun AddEditRecipeScreenWithPermissions(
         }
     }
 
-    // Always show the screen (permissions are handled internally)
+    // Pass recipeId to AddEditRecipeScreen
     AddEditRecipeScreen(
+        recipeId = recipeId, // Pass recipeId
         onSaveClick = onSaveClick,
         onCancelClick = onCancelClick
     )

@@ -5,7 +5,8 @@ data class ShoppingItem(
     val id: Int,
     val name: String,
     val quantity: String,
-    var isChecked: Boolean = false
+    var isChecked: Boolean = false,
+    val recipeId: String? = null
 )
 
 data class ShoppingCategory(

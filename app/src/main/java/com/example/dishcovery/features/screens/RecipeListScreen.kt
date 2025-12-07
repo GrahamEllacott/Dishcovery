@@ -138,9 +138,6 @@ fun RecipeListScreen(
                 items(uiState.recipes) { recipe ->
                     RecipeCard(
                         recipe = recipe,
-                        onFavoriteClick = {
-                            viewModel.toggleFavorite(recipe.id)
-                        },
                         onCardClick = { onRecipeClick(recipe.id) }
                     )
                 }

@@ -92,7 +92,7 @@ class AddEditRecipeViewModel() : ViewModel() {
                             fiber = if (recipe.fiber > 0) recipe.fiber.toString() else "",
                             sodium = if (recipe.sodium > 0) recipe.sodium.toString() else "",
                             imageUri = recipe.imageUri,
-                            imageRes = if (recipe.imageRes > 0) recipe.imageRes else null
+                            imageRes = if (recipe.imageRes > 0) recipe.imageRes else null,
                         )
                     } else {
                         _uiState.value = _uiState.value.copy(
@@ -457,8 +457,10 @@ class AddEditRecipeViewModel() : ViewModel() {
                     sodium = _uiState.value.sodium.toIntOrNull() ?: 0,
                     imageRes = _uiState.value.imageRes ?: 0,
                     imageUri = _uiState.value.imageUri,
-                    updatedAt = System.currentTimeMillis()
-                )
+                    updatedAt = System.currentTimeMillis(),
+                    checkedIngredients = List(_uiState.value.ingredients.filter { it.trim().isNotEmpty() }.size) { false },
+                    checkedInstructions = List(_uiState.value.instructions.filter { it.trim().isNotEmpty() }.size) { false },
+                    )
 
                 // Add or update recipe
                 val result = if (_uiState.value.recipeId.isNullOrEmpty()) {

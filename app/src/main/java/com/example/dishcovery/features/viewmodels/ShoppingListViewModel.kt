@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dishcovery.data.CustomShoppingItem
 import com.example.dishcovery.data.ShoppingListDBHelper
-import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.data.models.ShoppingCategory
 import com.example.dishcovery.data.models.ShoppingItem
 import com.example.dishcovery.data.repository.RecipeRepository
@@ -17,7 +16,8 @@ import kotlinx.coroutines.launch
 data class ShoppingListUiState(
     val categories: List<ShoppingCategory> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val hideChecked: Boolean = false
 )
 
 class ShoppingListViewModel : ViewModel() {
@@ -49,16 +49,27 @@ class ShoppingListViewModel : ViewModel() {
                         var itemId = 1
 
                         recipes.forEach { recipe ->
-                            recipe.ingredients.forEach { ingredient ->
+                            recipe.ingredients.forEachIndexed { index, ingredient ->
+                                // Get checked state from DB
+                                val isChecked = dbHelper.getRecipeIngredientChecked(recipe.id, ingredient)
+
                                 recipeItems.add(
                                     ShoppingItem(
                                         id = itemId++,
                                         name = ingredient,
                                         quantity = "from ${recipe.name}",
-                                        isChecked = false
+                                        isChecked = isChecked,
+                                        recipeId = recipe.id
                                     )
                                 )
                             }
+                        }
+
+                        // Filter out checked items if hideChecked is true
+                        val filteredRecipeItems = if (_uiState.value.hideChecked) {
+                            recipeItems.filter { !it.isChecked }.toMutableList()
+                        } else {
+                            recipeItems
                         }
 
                         categories.add(
@@ -66,7 +77,7 @@ class ShoppingListViewModel : ViewModel() {
                                 id = 1,
                                 name = "My Recipes Ingredients",
                                 emoji = "🍳",
-                                items = recipeItems
+                                items = filteredRecipeItems
                             )
                         )
                     }
@@ -87,14 +98,21 @@ class ShoppingListViewModel : ViewModel() {
                         quantity = item.quantity,
                         isChecked = item.isChecked
                     )
-                }.toMutableList()
+                }
+
+                // Filter out checked items if hideChecked is true
+                val filteredCustomItems = if (_uiState.value.hideChecked) {
+                    customShoppingItems.filter { !it.isChecked }.toMutableList()
+                } else {
+                    customShoppingItems.toMutableList()
+                }
 
                 categories.add(
                     ShoppingCategory(
                         id = 2,
                         name = "Custom Ingredients",
                         emoji = "🥗",
-                        items = customShoppingItems
+                        items = filteredCustomItems
                     )
                 )
             }
@@ -129,8 +147,20 @@ class ShoppingListViewModel : ViewModel() {
     fun toggleItem(categoryId: Int, itemId: Int, isChecked: Boolean) {
         viewModelScope.launch {
             try {
-                // Only update custom items in DB (categoryId = 2)
-                if (categoryId == 2) {
+                if (categoryId == 1) {
+                    // Recipe ingredient - save to recipe_ingredient_checks table
+                    val category = _uiState.value.categories.find { it.id == 1 }
+                    val item = category?.items?.find { it.id == itemId }
+
+                    item?.let {
+                        dbHelper.setRecipeIngredientChecked(
+                            it.recipeId ?: "",
+                            it.name,
+                            isChecked
+                        )
+                    }
+                } else if (categoryId == 2) {
+                    // Custom item - update in shopping_items table
                     val item = dbHelper.getItemById(itemId)
                     item?.let {
                         val updatedItem = it.copy(isChecked = isChecked)
@@ -163,25 +193,9 @@ class ShoppingListViewModel : ViewModel() {
         }
     }
 
-    fun clearAllChecked() {
-        viewModelScope.launch {
-            try {
-                // Delete checked custom items from DB
-                dbHelper.deleteCheckedItems()
-
-                // Remove checked items from UI
-                val updatedCategories = _uiState.value.categories.map { category ->
-                    val filteredItems = category.items.filter { !it.isChecked }.toMutableList()
-                    category.copy(items = filteredItems)
-                }
-
-                _uiState.value = _uiState.value.copy(categories = updatedCategories)
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = "Failed to clear items: ${e.message}"
-                )
-            }
-        }
+    fun toggleHideChecked() {
+        _uiState.value = _uiState.value.copy(hideChecked = !_uiState.value.hideChecked)
+        loadShoppingList() // Reload to apply filter
     }
 
     fun clearError() {

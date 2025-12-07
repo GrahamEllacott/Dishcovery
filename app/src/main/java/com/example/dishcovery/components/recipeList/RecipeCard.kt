@@ -42,7 +42,6 @@ import com.example.dishcovery.data.models.Recipe
 @Composable
 fun RecipeCard(
     recipe: Recipe,
-    onFavoriteClick: (Recipe) -> Unit,
     onCardClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -95,17 +94,6 @@ fun RecipeCard(
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f)
                     )
-
-                    IconButton(
-                        onClick = { onFavoriteClick(recipe) }
-                    ) {
-                        Icon(
-                            imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorite",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -171,7 +159,6 @@ fun RecipeCardPreview() {
             calories = 200,
             category = "Italian"
         ),
-        onFavoriteClick = {},
         onCardClick = {}
     )
 }

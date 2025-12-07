@@ -21,12 +21,14 @@ data class RecipeListUiState(
     val isLoading: Boolean = false,
     val error: String? = null
 )
-
 class RecipeListViewModel(application: Application) : AndroidViewModel(application) {
 
     private var repository: RecipeRepository = RecipeRepository(application)
     private val _uiState = MutableStateFlow(RecipeListUiState())
     val uiState: StateFlow<RecipeListUiState> = _uiState.asStateFlow()
+
+    // Add this to cache the current recipes
+    private val recipesCache = mutableMapOf<String, Recipe>()
 
     init {
         loadRecipes()
@@ -40,64 +42,63 @@ class RecipeListViewModel(application: Application) : AndroidViewModel(applicati
             try{
                 // GET RANDOM RESULTS
                 if(_uiState.value.searchQuery.isEmpty()){
-
-                    //get all recipes from firebase
                     sampleRecipes = repository.getRecipes().getOrNull() ?: emptyList()
-
                     Log.d("RecipeListViewModel", "Loading random recipes")
 
-                    // get a list of random recipes and parse them into our recipe format
                     val response = RetrofitInstance.api.getRandomRecipes(BuildConfig.SPOON_API_KEY, 10)
-
                     Log.d("RecipeListViewModel", "${response.recipes.count()} Recipes Loaded")
 
                     sampleRecipes += response.recipes.map { apiRecipe -> RecipeParser.parse(apiRecipe) }
-
                     Log.d("RecipeListViewModel", "${sampleRecipes.count()} Recipes Parsed")
 
                 }else{
-                    //SEARCH FOR RESULTS
-                    //TODO: Implement category filters
-
-                    //get all recipes from firebase
                     sampleRecipes = repository.getRecipes().getOrNull() ?: emptyList()
-                    //filter by title
                     sampleRecipes = sampleRecipes.filter { it.name.contains(_uiState.value.searchQuery, ignoreCase = true) }
 
-
-                    //get up to 10 results from spoonacular API
                     Log.d("RecipeListViewModel", "Searching for Recipes")
-                    //use a search query to get a list of recipes
                     val response = RetrofitInstance.api.getSearchRecipes(BuildConfig.SPOON_API_KEY, _uiState.value.searchQuery, 10)
-
                     Log.d("RecipeListViewModel", "${response.results.count()} Recipes Loaded")
 
-                    // get IDs for second request
                     val ids = response.results.joinToString(",") { it.id.toString() }
 
-                    // if no recipes are found then show an error message
                     if (ids.isEmpty()) {
                         _uiState.value = _uiState.value.copy(error = "No recipes found, \nTry searching something else")
                     }else{
                         Log.d("RecipeListViewModel", "Loading recipe details")
-                        // get the details from the recipe stubs and parse them into our recipe format
                         val recipeInfo = RetrofitInstance.api.getRecipeInformation(BuildConfig.SPOON_API_KEY, ids)
-
                         sampleRecipes += recipeInfo.map { apiRecipe -> RecipeParser.parse(apiRecipe) }
-
                         Log.d("RecipeListViewModel", "${sampleRecipes.count()} Recipes Parsed")
                     }
                 }
+
+                // Cache all recipes with a temporary ID if they don't have one
+                sampleRecipes.forEachIndexed { index, recipe ->
+                    val recipeId = recipe.id.ifEmpty { "temp_${System.currentTimeMillis()}_$index" }
+                    recipesCache[recipeId] = recipe.copy(id = recipeId)
+                }
+
             }catch(e: Exception){
                 Log.e("RecipeListViewModel", "Error loading recipes: $e", e)
                 _uiState.value = _uiState.value.copy(error = e.message)
             }
 
             _uiState.value = _uiState.value.copy(
-                recipes = sampleRecipes,
+                recipes = sampleRecipes.map { recipe ->
+                    if (recipe.id.isEmpty()) {
+                        val tempId = "temp_${System.currentTimeMillis()}_${sampleRecipes.indexOf(recipe)}"
+                        recipe.copy(id = tempId)
+                    } else {
+                        recipe
+                    }
+                },
                 isLoading = false
             )
         }
+    }
+
+    // Add method to get cached recipe
+    fun getCachedRecipe(recipeId: String): Recipe? {
+        return recipesCache[recipeId]
     }
 
     fun onSearchQueryChange(query: String) {
@@ -112,16 +113,4 @@ class RecipeListViewModel(application: Application) : AndroidViewModel(applicati
         _uiState.value = _uiState.value.copy(selectedCategory = category)
         loadRecipes()
     }
-
-    fun toggleFavorite(recipeId: String) {
-        val updatedRecipes = _uiState.value.recipes.map { recipe ->
-            if (recipe.id == recipeId) {
-                recipe.copy(isFavorite = !recipe.isFavorite)
-            } else {
-                recipe
-            }
-        }
-        _uiState.value = _uiState.value.copy(recipes = updatedRecipes)
-    }
-
 }

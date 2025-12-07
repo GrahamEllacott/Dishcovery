@@ -53,7 +53,6 @@ class RecipeParser {
                 sodium = sodium,
                 protein = protein,
                 category = category,
-                isFavorite = isFavorite,
                 ingredients = ingredients,
                 instructions = instructions
             )

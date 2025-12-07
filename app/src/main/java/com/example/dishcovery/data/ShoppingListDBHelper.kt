@@ -9,11 +9,11 @@ data class CustomShoppingItem(
     val id: Int = 0,
     val name: String,
     val quantity: String = "",
-    val isChecked: Boolean = false
+    val isChecked: Boolean = false,
 )
 
 class ShoppingListDBHelper(context: Context) :
-    SQLiteOpenHelper(context, "shopping_list.db", null, 1) {
+    SQLiteOpenHelper(context, "shopping_list.db", null, 2) {
 
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(
@@ -26,10 +26,23 @@ class ShoppingListDBHelper(context: Context) :
             )
             """.trimIndent()
         )
+
+        // Add table for recipe ingredient checkboxes
+        db?.execSQL(
+            """
+            CREATE TABLE recipe_ingredient_checks (
+                recipe_id TEXT NOT NULL,
+                ingredient TEXT NOT NULL,
+                is_checked INTEGER DEFAULT 0,
+                PRIMARY KEY (recipe_id, ingredient)
+            )
+            """.trimIndent()
+        )
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         db?.execSQL("DROP TABLE IF EXISTS shopping_items")
+        db?.execSQL("DROP TABLE IF EXISTS recipe_ingredient_checks")
         onCreate(db)
     }
 
@@ -117,6 +130,41 @@ class ShoppingListDBHelper(context: Context) :
     fun clearAllItems() {
         val db = writableDatabase
         db.delete("shopping_items", null, null)
+        db.close()
+    }
+
+    // Recipe Ingredient Checkbox Methods
+    fun setRecipeIngredientChecked(recipeId: String, ingredient: String, isChecked: Boolean) {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("recipe_id", recipeId)
+            put("ingredient", ingredient)
+            put("is_checked", if (isChecked) 1 else 0)
+        }
+        db.insertWithOnConflict("recipe_ingredient_checks", null, values, SQLiteDatabase.CONFLICT_REPLACE)
+        db.close()
+    }
+
+    fun getRecipeIngredientChecked(recipeId: String, ingredient: String): Boolean {
+        val db = readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT is_checked FROM recipe_ingredient_checks WHERE recipe_id = ? AND ingredient = ?",
+            arrayOf(recipeId, ingredient)
+        )
+
+        var isChecked = false
+        if (cursor.moveToFirst()) {
+            isChecked = cursor.getInt(0) == 1
+        }
+
+        cursor.close()
+        db.close()
+        return isChecked
+    }
+
+    fun deleteCheckedRecipeIngredients() {
+        val db = writableDatabase
+        db.delete("recipe_ingredient_checks", "is_checked = ?", arrayOf("1"))
         db.close()
     }
 }
