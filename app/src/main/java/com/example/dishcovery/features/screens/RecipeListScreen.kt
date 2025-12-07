@@ -59,21 +59,6 @@ fun RecipeListScreen(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        // Loading overlay
-        if (uiState.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(48.dp),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -177,6 +162,21 @@ fun RecipeListScreen(
                 contentDescription = "Add Recipe",
                 modifier = Modifier.size(32.dp)
             )
+        }
+
+        // Loading overlay
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
