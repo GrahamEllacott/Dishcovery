@@ -18,81 +18,50 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.dishcovery.data.models.ShoppingCategory
-import com.example.dishcovery.data.models.ShoppingItem
-import com.example.dishcovery.ui.theme.DishcoveryTheme
-import com.example.dishcovery.ui.theme.TextPrimary
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.dishcovery.features.viewmodels.ShoppingListViewModel
 
 @Composable
 fun ShoppingListScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ShoppingListViewModel = viewModel()
 ) {
-    // Sample data - to be replaced with ViewModel data
-    val categories = remember {
-        listOf(
-            ShoppingCategory(
-                id = 1,
-                name = "Produce",
-                emoji = "🥬",
-                items = mutableListOf(
-                    ShoppingItem(1, "Tomatoes", "4pcs", true),
-                    ShoppingItem(2, "Lettuce", "1 head", true),
-                    ShoppingItem(3, "Onions", "2 pcs", false),
-                    ShoppingItem(4, "Garlic", "1 bulb", false),
-                    ShoppingItem(5, "Bell Peppers", "3 pcs", true)
-                )
-            ),
-            ShoppingCategory(
-                id = 2,
-                name = "Protein",
-                emoji = "🥩",
-                items = mutableListOf(
-                    ShoppingItem(6, "Chicken Breast", "500g", true),
-                    ShoppingItem(7, "Ground Beef", "750g", true),
-                    ShoppingItem(8, "Eggs", "1 dozen", false),
-                    ShoppingItem(9, "Tofu", "400g", false),
-                    ShoppingItem(10, "Salmon", "160g", true)
-                )
-            ),
-            ShoppingCategory(
-                id = 3,
-                name = "Dairy",
-                emoji = "🧀",
-                items = mutableListOf(
-                    ShoppingItem(11, "Milk", "2L", false),
-                    ShoppingItem(12, "Cheese", "200g", false),
-                    ShoppingItem(13, "Yogurt", "500g", true)
-                )
-            ),
-            ShoppingCategory(
-                id = 4,
-                name = "Pantry",
-                emoji = "🥫",
-                items = mutableListOf(
-                    ShoppingItem(14, "Rice", "1kg", false),
-                    ShoppingItem(15, "Pasta", "500g", true),
-                    ShoppingItem(16, "Olive Oil", "250ml", false)
-                )
-            )
-        ).toMutableStateList()
-    }
-
+    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
     val customItemInput = remember { mutableStateOf("") }
 
+    // Initialize repository
+    LaunchedEffect(Unit) {
+        viewModel.initRepository(context)
+    }
+
+    // Show error snackbar
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let { error ->
+            snackbarHostState.showSnackbar(error)
+            viewModel.clearError()
+        }
+    }
+
     // Calculate progress
-    val totalItems = categories.sumOf { it.items.size }
-    val checkedItems = categories.sumOf { category ->
+    val totalItems = uiState.categories.sumOf { it.items.size }
+    val checkedItems = uiState.categories.sumOf { category ->
         category.items.count { it.isChecked }
     }
 
@@ -118,13 +87,7 @@ fun ShoppingListScreen(
 
             OutlinedButton(
                 onClick = {
-                    // Clear all checked items
-                    categories.forEachIndexed { categoryIndex, category ->
-                        val itemsToRemove = category.items.filter { it.isChecked }
-                        itemsToRemove.forEach { item ->
-                            categories[categoryIndex].items.remove(item)
-                        }
-                    }
+                    viewModel.clearAllChecked()
                 },
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
@@ -133,7 +96,7 @@ fun ShoppingListScreen(
                 )
             ) {
                 Text(
-                    text = "Clear All",
+                    text = "Clear Checked",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -154,16 +117,7 @@ fun ShoppingListScreen(
             onValueChange = { customItemInput.value = it },
             onAddClick = {
                 if (customItemInput.value.isNotBlank()) {
-                    // Add to Pantry category by default
-                    val pantryCategory = categories.find { it.name == "Pantry" }
-                    pantryCategory?.items?.add(
-                        ShoppingItem(
-                            id = System.currentTimeMillis().toInt(),
-                            name = customItemInput.value,
-                            quantity = "",
-                            isChecked = false
-                        )
-                    )
+                    viewModel.addCustomItem(customItemInput.value)
                     customItemInput.value = ""
                 }
             }
@@ -178,30 +132,19 @@ fun ShoppingListScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             itemsIndexed(
-                items = categories,
+                items = uiState.categories,
                 key = { _, category -> category.id }
             ) { categoryIndex, category ->
                 ShoppingCategoryCard(
                     category = category,
                     onItemCheckedChange = { item, checked ->
-                        val itemIndex = category.items.indexOfFirst { it.id == item.id }
-                        if (itemIndex != -1) {
-                            // Create a new item with updated checked state
-                            val updatedItem = item.copy(isChecked = checked)
-                            // Update the item in the list
-                            categories[categoryIndex].items[itemIndex] = updatedItem
-                        }
+                        viewModel.toggleItem(category.id, item.id, checked)
                     }
                 )
             }
         }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun ShoppingListScreenPreview() {
-    DishcoveryTheme {
-        ShoppingListScreen()
+        // Snackbar host
+        SnackbarHost(hostState = snackbarHostState)
     }
 }
