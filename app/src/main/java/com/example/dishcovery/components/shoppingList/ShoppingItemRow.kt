@@ -50,23 +50,24 @@ fun ShoppingItemRow(
                     colors = CheckboxDefaults.colors(
                         checkedColor = MaterialTheme.colorScheme.primary,
                         uncheckedColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+
+                Column {
+                    Text(
+                        text = item.name,
+                        fontSize = 16.sp,
+                        color = if (item.isChecked) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                        textDecoration = if (item.isChecked) TextDecoration.LineThrough else TextDecoration.None
                     )
-                )
-
-                Text(
-                    text = item.name,
-                    fontSize = 16.sp,
-                    color = if (item.isChecked) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-                    textDecoration = if (item.isChecked) TextDecoration.LineThrough else TextDecoration.None,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
+                    Text(
+                        text = item.quantity,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
-
-            Text(
-                text = item.quantity,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
