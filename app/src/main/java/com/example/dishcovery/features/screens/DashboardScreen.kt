@@ -1,6 +1,6 @@
 package com.example.dishcovery.features.screens
 
-import androidx.compose.foundation.Image
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,56 +31,28 @@ import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.example.dishcovery.R
-import com.example.dishcovery.data.models.Recipe
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.example.dishcovery.features.viewmodels.DashboardViewModel
 import com.example.dishcovery.ui.theme.DishcoveryTheme
 
 @Composable
 fun DashboardScreen(modifier: Modifier = Modifier) {
-    // Sample recipes to be removed when API implemented
-    val recipes = remember {
-        mutableStateListOf(
-            Recipe(
-                id = "id1",
-                name = "Spaghetti Carbonara",
-                imageRes = R.drawable.ic_launcher_background,
-                prepTime = 25,
-                calories = 520,
-                category = "Dinner"
-            ),
-            Recipe(
-                id = "id2",
-                name = "Honey Garlic Chicken",
-                imageRes = R.drawable.ic_launcher_background,
-                prepTime = 35,
-                calories = 380,
-                category = "Dinner"
-            ),
-            Recipe(
-                id = "id3",
-                name = "Lobster Pasta",
-                imageRes = R.drawable.ic_launcher_background,
-                prepTime = 40,
-                calories = 450,
-                category = "Dinner"
-            )
-        )
-    }
+    val viewModel: DashboardViewModel = viewModel()
+    val uiState by viewModel.uiState.collectAsState()
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -158,7 +130,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                     verticalArrangement = Arrangement.spacedBy(18.dp),
                     contentPadding = PaddingValues(bottom = 18.dp)
                 ) {
-                    items(recipes) { recipe ->
+                    items(uiState.todaysMeals) { recipe ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -173,8 +145,8 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Image(
-                                    painter = painterResource(recipe.imageRes),
+                                AsyncImage(
+                                    model = Uri.parse(recipe.imageUri),
                                     contentDescription = recipe.name,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
@@ -204,6 +176,41 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                         "${recipe.calories}kcal",
                                         fontSize = 16.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    // if theres no meals, add a placeholder
+                    if (uiState.todaysMeals.isEmpty()) {
+                        item {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(90.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondary
+                                )
+
+                            ) {
+                                Column (
+                                    verticalArrangement = Arrangement.SpaceBetween,
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier
+                                        .padding(14.dp)
+                                        .fillMaxSize()
+                                ) {
+                                    Text(
+                                        "No meals today",
+                                        fontSize = 16.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        "Let's get Cooking!",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
                             }
@@ -264,7 +271,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                 contentAlignment = Alignment.Center
                             ) {
                                 CircularProgressIndicator(
-                                    progress = {0.7f},
+                                    progress = {uiState.nutritionSummary.caloriesPercent},
                                     modifier = Modifier
                                         .size(105.dp)
                                         .scale(-1f, 1f),
@@ -277,7 +284,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                 ){
                                     Text(
-                                        "1500 cals",
+                                        "${uiState.nutritionSummary.totalCalories} cals",
                                         fontSize = 14.sp,
                                         style = TextStyle(
                                             color = MaterialTheme.colorScheme.primary,
@@ -286,7 +293,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                         )
                                     )
                                     Text(
-                                        "70%",
+                                        "${uiState.nutritionSummary.caloriesPercent * 100}%",
                                         fontSize = 14.sp,
                                         style = TextStyle(
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -314,13 +321,13 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
-                                        "25% 45g",
+                                        "${uiState.nutritionSummary.fatsPercent * 100}% ${uiState.nutritionSummary.fatsGrams}g",
                                         fontSize = 13.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 LinearProgressIndicator(
-                                    progress = {0.25f},
+                                    progress = {uiState.nutritionSummary.fatsPercent},
                                     modifier = Modifier.height(11.dp),
                                     color = MaterialTheme.colorScheme.primary,
                                     trackColor = ProgressIndicatorDefaults.linearTrackColor,
@@ -339,13 +346,13 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
-                                        "45% 75g",
+                                        "${uiState.nutritionSummary.proteinPercent * 100}% ${uiState.nutritionSummary.proteinGrams}g",
                                         fontSize = 13.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 LinearProgressIndicator(
-                                    progress = {0.75f},
+                                    progress = {uiState.nutritionSummary.proteinPercent},
                                     modifier = Modifier.height(11.dp),
                                     color = MaterialTheme.colorScheme.primary,
                                     trackColor = ProgressIndicatorDefaults.linearTrackColor,
@@ -364,13 +371,13 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                     )
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(
-                                        "30% 45g",
+                                        "${uiState.nutritionSummary.carbsPercent * 100}% ${uiState.nutritionSummary.carbsGrams}g",
                                         fontSize = 13.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 LinearProgressIndicator(
-                                    progress = {0.3f},
+                                    progress = {uiState.nutritionSummary.carbsPercent},
                                     modifier = Modifier.height(11.dp),
                                     color = MaterialTheme.colorScheme.primary,
                                     trackColor = ProgressIndicatorDefaults.linearTrackColor,
