@@ -77,7 +77,7 @@ class RecipeListViewModel(application: Application) : AndroidViewModel(applicati
 
                     // if no recipes are found then show an error message
                     if (ids.isEmpty()) {
-                        _uiState.value = _uiState.value.copy(error = "No recipes found")
+                        _uiState.value = _uiState.value.copy(error = "No recipes found, \nTry searching something else")
                     }else{
                         Log.d("RecipeListViewModel", "Loading recipe details")
                         // get the details from the recipe stubs and parse them into our recipe format

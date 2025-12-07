@@ -144,6 +144,20 @@ fun RecipeListScreen(
                         onCardClick = { onRecipeClick(recipe.id) }
                     )
                 }
+                // show error messages
+                uiState.error?.let { error ->
+                    item {
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+
+                        )
+                    }
+                }
+
             }
         }
 
