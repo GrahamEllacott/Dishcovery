@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun RecipeCard(
@@ -104,13 +105,13 @@ fun RecipeCard(
                 ) {
                     RecipeInfoItem(
                         icon = Icons.Outlined.AccessTime,
-                        text = "${recipe.prepTime} min",
+                        text = stringResource(R.string.prep_time_min, recipe.prepTime),
                         color = MaterialTheme.colorScheme.primary
                     )
 
                     RecipeInfoItem(
                         icon = Icons.Outlined.LocalFireDepartment,
-                        text = "${recipe.calories} cal",
+                        text = stringResource(R.string.calories_count, recipe.calories),
                         color = MaterialTheme.colorScheme.error
                     )
 

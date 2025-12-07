@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dishcovery.features.viewmodels.ShoppingListViewModel
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @Composable
 fun ShoppingListScreen(
@@ -45,11 +47,6 @@ fun ShoppingListScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val customItemInput = remember { mutableStateOf("") }
-
-    // Initialize repository
-    LaunchedEffect(Unit) {
-        viewModel.initRepository(context)
-    }
 
     // Show error snackbar
     LaunchedEffect(uiState.error) {
@@ -79,7 +76,7 @@ fun ShoppingListScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Shopping List",
+                text = stringResource(R.string.title_shopping_list),
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
@@ -96,7 +93,7 @@ fun ShoppingListScreen(
                 )
             ) {
                 Text(
-                    text = if (uiState.hideChecked) "Show All" else "Hide Checked",
+                    text = if (uiState.hideChecked) stringResource(R.string.show_all) else stringResource(R.string.hide_checked),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )

@@ -24,6 +24,8 @@ import com.example.dishcovery.ui.theme.TextPrimary
 import com.example.dishcovery.ui.theme.TextSecondary
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @Composable
 fun DayMealPlanCard(
@@ -67,7 +69,11 @@ fun DayMealPlanCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             // Meals - 3 slots: Breakfast, Lunch, Dinner
-            val mealTypes = listOf("Breakfast", "Lunch", "Dinner")
+            val mealTypes = listOf(
+                stringResource(R.string.meal_breakfast),
+                stringResource(R.string.meal_lunch),
+                stringResource(R.string.meal_dinner)
+            )
 
             // CRITICAL FIX: Map recipe IDs to recipes to maintain slot positions
             val recipeMap = mealPlan.recipes.associateBy { it.id }
@@ -171,7 +177,7 @@ fun RecipeCardMini(
                         maxLines = 1
                     )
                     Text(
-                        text = "${recipe.calories} cal",
+                        text = stringResource(R.string.calories_count, recipe.calories),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -196,7 +202,7 @@ fun RecipeCardMini(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Remove recipe",
+                    contentDescription = stringResource(R.string.cd_remove_recipe),
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(18.dp)
                 )

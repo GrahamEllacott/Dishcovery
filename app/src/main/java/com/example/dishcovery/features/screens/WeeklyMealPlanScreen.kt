@@ -20,6 +20,8 @@ import com.example.dishcovery.components.mealPlan.RecipeSelectionDialog
 import com.example.dishcovery.components.mealPlan.WeekSelector
 import com.example.dishcovery.features.viewmodels.WeeklyMealPlanViewModel
 import java.time.LocalDate
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @Composable
 fun WeeklyMealPlanScreen(
@@ -56,7 +58,7 @@ fun WeeklyMealPlanScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Meal Plan",
+                text = stringResource(R.string.title_meal_plan),
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground

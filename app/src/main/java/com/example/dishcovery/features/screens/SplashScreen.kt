@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dishcovery.R
+import androidx.compose.ui.res.stringResource
 import com.example.dishcovery.ui.theme.CreamBackground
 import kotlinx.coroutines.delay
 
@@ -47,11 +48,11 @@ fun SplashScreen(
             )
             Image(
                 painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Dishcovery Logo",
+                contentDescription = stringResource(R.string.cd_dishcovery_logo),
                 modifier = Modifier.size(180.dp)
             )
             Text(
-                text = "Dishcovery",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground

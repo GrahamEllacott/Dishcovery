@@ -1,8 +1,9 @@
 package com.example.dishcovery.features.viewmodels
 
-import android.content.Context
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dishcovery.R
 import com.example.dishcovery.data.CustomShoppingItem
 import com.example.dishcovery.data.ShoppingListDBHelper
 import com.example.dishcovery.data.models.ShoppingCategory
@@ -20,17 +21,15 @@ data class ShoppingListUiState(
     val hideChecked: Boolean = false
 )
 
-class ShoppingListViewModel : ViewModel() {
+class ShoppingListViewModel(application: Application) : AndroidViewModel(application) {
 
-    private lateinit var dbHelper: ShoppingListDBHelper
-    private lateinit var recipeRepository: RecipeRepository
+    private val dbHelper: ShoppingListDBHelper = ShoppingListDBHelper(application)
+    private val recipeRepository: RecipeRepository = RecipeRepository(application)
 
     private val _uiState = MutableStateFlow(ShoppingListUiState())
     val uiState: StateFlow<ShoppingListUiState> = _uiState.asStateFlow()
 
-    fun initRepository(context: Context) {
-        dbHelper = ShoppingListDBHelper(context)
-        recipeRepository = RecipeRepository(context)
+    init {
         loadShoppingList()
     }
 
@@ -57,7 +56,7 @@ class ShoppingListViewModel : ViewModel() {
                                     ShoppingItem(
                                         id = itemId++,
                                         name = ingredient,
-                                        quantity = "from ${recipe.name}",
+                                        quantity = getApplication<Application>().getString(R.string.item_quantity_from_recipe, recipe.name),
                                         isChecked = isChecked,
                                         recipeId = recipe.id
                                     )
@@ -75,8 +74,8 @@ class ShoppingListViewModel : ViewModel() {
                         categories.add(
                             ShoppingCategory(
                                 id = 1,
-                                name = "My Recipes Ingredients",
-                                emoji = "🍳",
+                                name = getApplication<Application>().getString(R.string.category_my_recipes),
+                                emoji = getApplication<Application>().getString(R.string.category_emoji_recipes),
                                 items = filteredRecipeItems
                             )
                         )
@@ -84,7 +83,7 @@ class ShoppingListViewModel : ViewModel() {
                 }
                 .onFailure { e ->
                     _uiState.value = _uiState.value.copy(
-                        error = "Failed to load recipes: ${e.message}"
+                        error = getApplication<Application>().getString(R.string.error_failed_load_recipes, e.message ?: "Unknown error")
                     )
                 }
 
@@ -110,8 +109,8 @@ class ShoppingListViewModel : ViewModel() {
                 categories.add(
                     ShoppingCategory(
                         id = 2,
-                        name = "Custom Ingredients",
-                        emoji = "🥗",
+                        name = getApplication<Application>().getString(R.string.category_custom),
+                        emoji = getApplication<Application>().getString(R.string.category_emoji_custom),
                         items = filteredCustomItems
                     )
                 )
@@ -138,7 +137,7 @@ class ShoppingListViewModel : ViewModel() {
                 loadShoppingList() // Reload
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    error = "Failed to add item: ${e.message}"
+                    error = getApplication<Application>().getString(R.string.error_failed_add_item, e.message ?: "Unknown error")
                 )
             }
         }
@@ -187,7 +186,7 @@ class ShoppingListViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(categories = updatedCategories)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    error = "Failed to update item: ${e.message}"
+                    error = getApplication<Application>().getString(R.string.error_failed_update_item, e.message ?: "Unknown error")
                 )
             }
         }

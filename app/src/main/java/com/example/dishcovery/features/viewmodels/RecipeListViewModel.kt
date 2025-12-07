@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dishcovery.BuildConfig
+import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.data.remote.RetrofitInstance
 import com.example.dishcovery.data.repository.RecipeRepository
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
 data class RecipeListUiState(
     val recipes: List<Recipe> = emptyList(),
     val searchQuery: String = "",
-    val selectedCategory: String = "All",
+    val selectedCategory: String = "All", // Note: Will be set to string resource in ViewModel init
     val isLoading: Boolean = false,
     val error: String? = null
 )
@@ -41,7 +42,8 @@ class RecipeListViewModel(application: Application) : AndroidViewModel(applicati
                 sampleRecipes = repository.getRecipes().getOrNull() ?: emptyList()
 
                 // Apply category filter if not "All" or "My Recipes"
-                if (_uiState.value.selectedCategory !in listOf("All", "My Recipes")) {
+                val context = getApplication<Application>()
+                if (_uiState.value.selectedCategory !in listOf(context.getString(R.string.all), context.getString(R.string.title_my_recipes))) {
                     val categoryFilter = _uiState.value.selectedCategory.lowercase()
                     sampleRecipes = sampleRecipes.filter {
                         it.category.lowercase() == categoryFilter
@@ -139,7 +141,7 @@ class RecipeListViewModel(application: Application) : AndroidViewModel(applicati
                     // If no recipes are found then show an error message
                     if (ids.isEmpty()) {
                         if (firebaseRecipes.isEmpty()) {
-                            _uiState.value = _uiState.value.copy(error = "No recipes found")
+                            _uiState.value = _uiState.value.copy(error = getApplication<Application>().getString(R.string.error_no_recipes_found_vm))
                         }
                     } else {
                         Log.d("RecipeListViewModel", "Loading recipe details")
@@ -187,7 +189,8 @@ class RecipeListViewModel(application: Application) : AndroidViewModel(applicati
 
     fun onCategorySelected(category: String) {
         _uiState.value = _uiState.value.copy(selectedCategory = category)
-        if (category == "My Recipes") {
+        val context = getApplication<Application>()
+        if (category == context.getString(R.string.title_my_recipes)) {
             loadMyRecipes()
         } else {
             loadRecipes()

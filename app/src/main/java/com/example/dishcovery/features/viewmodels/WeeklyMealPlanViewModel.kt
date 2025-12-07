@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dishcovery.R
 import com.example.dishcovery.data.MealPlanDBHelper
 import com.example.dishcovery.data.models.MealPlan
 import com.example.dishcovery.data.models.Recipe
@@ -70,10 +71,11 @@ class WeeklyMealPlanViewModel(application: Application) : AndroidViewModel(appli
 
     fun showRecipeSelectionDialog(date: LocalDate, mealType: String) {
         // Determine the meal index based on meal type
+        val context = getApplication<Application>()
         val mealIndex = when (mealType) {
-            "Breakfast" -> 0
-            "Lunch" -> 1
-            "Dinner" -> 2
+            context.getString(R.string.meal_breakfast) -> 0
+            context.getString(R.string.meal_lunch) -> 1
+            context.getString(R.string.meal_dinner) -> 2
             else -> -1
         }
 

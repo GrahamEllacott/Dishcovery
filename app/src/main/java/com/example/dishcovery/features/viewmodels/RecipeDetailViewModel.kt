@@ -1,9 +1,10 @@
 package com.example.dishcovery.features.viewmodels
 
-import android.content.Context
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.data.repository.RecipeRepository
 import com.example.dishcovery.util.RecipeCache
@@ -22,16 +23,12 @@ data class RecipeDetailUiState(
     val error: String? = null
 )
 
-class RecipeDetailViewModel : ViewModel() {
+class RecipeDetailViewModel(application: Application) : AndroidViewModel(application) {
 
-    private lateinit var repository: RecipeRepository
+    private val repository: RecipeRepository = RecipeRepository(application)
 
     private val _uiState = MutableStateFlow(RecipeDetailUiState())
     val uiState: StateFlow<RecipeDetailUiState> = _uiState.asStateFlow()
-
-    fun initRepository(context: Context) {
-        repository = RecipeRepository(context)
-    }
 
     fun loadRecipe(recipeId: String) {
         Log.d("RecipeDetailViewModel", "Loading recipe with ID: $recipeId")
@@ -55,7 +52,7 @@ class RecipeDetailViewModel : ViewModel() {
                     Log.e("RecipeDetailViewModel", "Cached recipe not found for ID: $recipeId")
                     _uiState.value = _uiState.value.copy(
                         recipe = null,
-                        error = "Recipe not found in cache",
+                        error = getApplication<Application>().getString(R.string.error_recipe_not_found_cache),
                         isLoading = false
                     )
                 }
@@ -77,7 +74,7 @@ class RecipeDetailViewModel : ViewModel() {
                         Log.e("RecipeDetailViewModel", "Recipe not found in Firebase")
                         _uiState.value = _uiState.value.copy(
                             recipe = null,
-                            error = "Recipe not found",
+                            error = getApplication<Application>().getString(R.string.error_recipe_not_found),
                             isLoading = false
                         )
                     }
@@ -86,7 +83,7 @@ class RecipeDetailViewModel : ViewModel() {
                     Log.e("RecipeDetailViewModel", "Failed to load recipe: ${e.message}", e)
                     _uiState.value = _uiState.value.copy(
                         recipe = null,
-                        error = "Failed to load recipe: ${e.message}",
+                        error = getApplication<Application>().getString(R.string.error_failed_load_recipe, e.message ?: "Unknown error"),
                         isLoading = false
                     )
                 }
@@ -119,14 +116,14 @@ class RecipeDetailViewModel : ViewModel() {
                         Log.e("RecipeDetailViewModel", "Failed to save recipe: ${e.message}", e)
                         _uiState.value = _uiState.value.copy(
                             isSaving = false,
-                            error = "Failed to save recipe: ${e.message}"
+                            error = getApplication<Application>().getString(R.string.error_failed_save_recipe, e.message ?: "Unknown error")
                         )
                     }
             } catch (e: Exception) {
                 Log.e("RecipeDetailViewModel", "Exception while saving recipe: ${e.message}", e)
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
-                    error = "Error: ${e.message}"
+                    error = getApplication<Application>().getString(R.string.error_generic, e.message ?: "Unknown error")
                 )
             }
         }
@@ -149,14 +146,14 @@ class RecipeDetailViewModel : ViewModel() {
                         Log.e("RecipeDetailViewModel", "Failed to delete recipe: ${e.message}", e)
                         _uiState.value = _uiState.value.copy(
                             isDeleting = false,
-                            error = "Failed to delete recipe: ${e.message}"
+                            error = getApplication<Application>().getString(R.string.error_failed_delete_recipe, e.message ?: "Unknown error")
                         )
                     }
             } catch (e: Exception) {
                 Log.e("RecipeDetailViewModel", "Exception while deleting recipe: ${e.message}", e)
                 _uiState.value = _uiState.value.copy(
                     isDeleting = false,
-                    error = "Error: ${e.message}"
+                    error = getApplication<Application>().getString(R.string.error_generic, e.message ?: "Unknown error")
                 )
             }
         }
@@ -203,7 +200,7 @@ class RecipeDetailViewModel : ViewModel() {
             repository.toggleIngredient(recipe.id, index, newChecked)
                 .onFailure { e ->
                     _uiState.value = _uiState.value.copy(
-                        error = "Failed to update: ${e.message}"
+                        error = getApplication<Application>().getString(R.string.error_failed_update, e.message ?: "Unknown error")
                     )
                 }
         }
@@ -250,7 +247,7 @@ class RecipeDetailViewModel : ViewModel() {
             repository.toggleInstruction(recipe.id, index, newChecked)
                 .onFailure { e ->
                     _uiState.value = _uiState.value.copy(
-                        error = "Failed to update: ${e.message}"
+                        error = getApplication<Application>().getString(R.string.error_failed_update, e.message ?: "Unknown error")
                     )
                 }
         }

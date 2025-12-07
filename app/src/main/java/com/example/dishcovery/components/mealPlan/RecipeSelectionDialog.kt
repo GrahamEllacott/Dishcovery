@@ -23,6 +23,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.example.dishcovery.data.models.Recipe
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @Composable
 fun RecipeSelectionDialog(
@@ -75,7 +77,7 @@ fun RecipeSelectionDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Select Recipe",
+                        text = stringResource(R.string.title_select_recipe),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -83,7 +85,7 @@ fun RecipeSelectionDialog(
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
+                            contentDescription = stringResource(R.string.cd_close),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -96,11 +98,11 @@ fun RecipeSelectionDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
-                    placeholder = { Text("Search recipes...") },
+                    placeholder = { Text(stringResource(R.string.search_recipes_placeholder)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
-                            contentDescription = "Search"
+                            contentDescription = stringResource(R.string.cd_search)
                         )
                     },
                     singleLine = true,
@@ -130,9 +132,9 @@ fun RecipeSelectionDialog(
                         ) {
                             Text(
                                 text = if (searchQuery.isBlank()) {
-                                    "No recipes found.\nAdd some recipes first!"
+                                    stringResource(R.string.no_recipes_found)
                                 } else {
-                                    "No recipes match your search"
+                                    stringResource(R.string.no_recipes_match)
                                 },
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 16.sp,
@@ -228,7 +230,7 @@ private fun RecipeSelectionItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "⏱️ ${recipe.cookTime}",
+                    text = stringResource(R.string.cook_time_emoji, recipe.cookTime),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

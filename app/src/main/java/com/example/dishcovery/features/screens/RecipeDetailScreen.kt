@@ -57,6 +57,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 import com.example.dishcovery.features.viewmodels.RecipeDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,9 +80,8 @@ fun RecipeDetailScreen(
     // Check if this is an API recipe (temp ID)
     val isApiRecipe = recipeId.startsWith("temp_")
 
-    // Initialize repository and load recipe
+    // Load recipe
     LaunchedEffect(Unit) {
-        viewModel.initRepository(context)
         viewModel.loadRecipe(recipeId)
     }
 
@@ -95,7 +96,7 @@ fun RecipeDetailScreen(
     // Show success message when recipe is saved
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) {
-            snackbarHostState.showSnackbar("Recipe saved to My Recipes!")
+            snackbarHostState.showSnackbar(context.getString(R.string.recipe_saved))
             viewModel.clearSaveSuccess()
         }
     }
@@ -114,12 +115,12 @@ fun RecipeDetailScreen(
             onDismissRequest = { showDeleteDialog = false },
             title = {
                 Text(
-                    text = "Delete Recipe?",
+                    text = stringResource(R.string.title_delete_recipe),
                     fontWeight = FontWeight.Bold
                 )
             },
             text = {
-                Text("Are you sure you want to delete this recipe? This action cannot be undone.")
+                Text(stringResource(R.string.delete_recipe_message))
             },
             confirmButton = {
                 TextButton(
@@ -133,14 +134,14 @@ fun RecipeDetailScreen(
                         contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Delete", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.delete), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { showDeleteDialog = false }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -174,7 +175,7 @@ fun RecipeDetailScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Back",
+                                contentDescription = stringResource(R.string.cd_back),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
@@ -215,7 +216,7 @@ fun RecipeDetailScreen(
                         ) {
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Add to Meal Plan Today!",
+                                text = stringResource(R.string.add_to_meal_plan),
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -229,7 +230,7 @@ fun RecipeDetailScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Edit,
-                                        contentDescription = "Edit",
+                                        contentDescription = stringResource(R.string.cd_edit),
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
@@ -246,7 +247,7 @@ fun RecipeDetailScreen(
                                     } else {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete",
+                                            contentDescription = stringResource(R.string.delete),
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -266,7 +267,7 @@ fun RecipeDetailScreen(
                                 color = MaterialTheme.colorScheme.secondaryContainer
                             ) {
                                 Text(
-                                    text = "From Spoonacular API",
+                                    text = stringResource(R.string.from_api),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                                     fontWeight = FontWeight.Medium,
@@ -286,13 +287,13 @@ fun RecipeDetailScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Outlined.AccessTime,
-                                contentDescription = "Time",
+                                contentDescription = stringResource(R.string.cd_time),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Prepare: ${recipe.prepTime} min | Cook: ${recipe.cookTime} min",
+                                text = stringResource(R.string.prep_cook_time, recipe.prepTime, recipe.cookTime),
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -301,7 +302,7 @@ fun RecipeDetailScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Outlined.Restaurant,
-                                contentDescription = "Category",
+                                contentDescription = stringResource(R.string.cd_category),
                                 tint = MaterialTheme.colorScheme.errorContainer,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -328,7 +329,7 @@ fun RecipeDetailScreen(
                             modifier = Modifier.padding(16.dp)
                         ) {
                             Text(
-                                text = "Nutrition Facts",
+                                text = stringResource(R.string.nutrition_facts),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSecondary,
@@ -347,8 +348,8 @@ fun RecipeDetailScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        NutritionItem("Calories", "${recipe.calories} cal")
-                                        NutritionItem("Fat", "${recipe.fat} g")
+                                        NutritionItem(stringResource(R.string.calories), "${recipe.calories} cal")
+                                        NutritionItem(stringResource(R.string.nutrition_fat), "${recipe.fat} g")
                                     }
 
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -357,8 +358,8 @@ fun RecipeDetailScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        NutritionItem("Protein", "${recipe.protein} g")
-                                        NutritionItem("Fiber", "${recipe.fiber} g")
+                                        NutritionItem(stringResource(R.string.nutrition_protein), "${recipe.protein} g")
+                                        NutritionItem(stringResource(R.string.nutrition_fiber), "${recipe.fiber} g")
                                     }
 
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -367,8 +368,8 @@ fun RecipeDetailScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        NutritionItem("Carbs", "${recipe.carbs} g")
-                                        NutritionItem("Sodium", "${recipe.sodium} mg")
+                                        NutritionItem(stringResource(R.string.nutrition_carbs), "${recipe.carbs} g")
+                                        NutritionItem(stringResource(R.string.nutrition_sodium), "${recipe.sodium} mg")
                                     }
                                 }
                             }
@@ -384,7 +385,7 @@ fun RecipeDetailScreen(
                             .padding(horizontal = 16.dp)
                     ) {
                         Text(
-                            text = "Ingredients",
+                            text = stringResource(R.string.ingredients),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onBackground
@@ -411,7 +412,7 @@ fun RecipeDetailScreen(
                             .padding(horizontal = 16.dp)
                     ) {
                         Text(
-                            text = "Instructions",
+                            text = stringResource(R.string.instructions),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onBackground
@@ -458,13 +459,13 @@ fun RecipeDetailScreen(
                         } else {
                             Icon(
                                 imageVector = Icons.Default.Add,
-                                contentDescription = "Add",
+                                contentDescription = stringResource(R.string.cd_add),
                                 tint = Color.White,
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Add to My Recipes",
+                                text = stringResource(R.string.add_to_my_recipes),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -555,7 +556,7 @@ fun InstructionItem(
             )
         )
         Text(
-            text = "$step. $instruction",
+            text = stringResource(R.string.instruction_step, step, instruction),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textDecoration = if (isChecked) TextDecoration.LineThrough else null,

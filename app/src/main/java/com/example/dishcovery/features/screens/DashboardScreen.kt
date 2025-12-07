@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.dishcovery.features.viewmodels.DashboardViewModel
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @Composable
 fun DashboardScreen(modifier: Modifier = Modifier) {
@@ -51,7 +53,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Dashboard",
+                    text = stringResource(R.string.title_dashboard),
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -67,7 +69,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                         IconButton(onClick = { /* Notifications */ }) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
-                                contentDescription = "Notifications",
+                                contentDescription = stringResource(R.string.cd_notifications),
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
@@ -82,7 +84,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                         IconButton(onClick = { /* Profile */ }) {
                             Icon(
                                 imageVector = Icons.Default.Person,
-                                contentDescription = "Profile",
+                                contentDescription = stringResource(R.string.cd_profile),
                                 tint = MaterialTheme.colorScheme.onSecondary
                             )
                         }
@@ -113,7 +115,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                 .padding(horizontal = 26.dp)
                         ) {
                             Text(
-                                "Today's Meals",
+                                stringResource(R.string.today_meals),
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground
@@ -216,12 +218,12 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                         .fillMaxSize()
                                 ) {
                                     Text(
-                                        "No meals today",
+                                        stringResource(R.string.no_meals_today),
                                         fontSize = 16.sp,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
-                                        "Let's get Cooking!",
+                                        stringResource(R.string.lets_get_cooking),
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface
@@ -239,7 +241,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                 .padding(horizontal = 26.dp, vertical = 18.dp),
                         ) {
                             Text(
-                                "Today's Nutrition Summary",
+                                stringResource(R.string.today_nutrition_summary),
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground
@@ -261,12 +263,12 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                 ) {
                                     Row {
                                         Text(
-                                            "Calories",
+                                            stringResource(R.string.calories),
                                             fontWeight = FontWeight.Bold,
                                         )
                                         Icon(
                                             imageVector = Icons.Outlined.LocalFireDepartment,
-                                            contentDescription = "Calories",
+                                            contentDescription = stringResource(R.string.cd_calories),
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -325,7 +327,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                             // Fats
                                             Row {
                                                 Text(
-                                                    "Fats",
+                                                    stringResource(R.string.nutrition_fats),
                                                     fontSize = 15.sp,
                                                     fontWeight = FontWeight.Bold,
                                                     color = MaterialTheme.colorScheme.onSurface
@@ -351,7 +353,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                             // Protein
                                             Row {
                                                 Text(
-                                                    "Protein",
+                                                    stringResource(R.string.nutrition_protein),
                                                     fontSize = 15.sp,
                                                     fontWeight = FontWeight.Bold,
                                                     color = MaterialTheme.colorScheme.onSurface
@@ -377,7 +379,7 @@ fun DashboardScreen(modifier: Modifier = Modifier) {
                                             // Carbs
                                             Row {
                                                 Text(
-                                                    "Carbs",
+                                                    stringResource(R.string.nutrition_carbs),
                                                     fontSize = 15.sp,
                                                     fontWeight = FontWeight.Bold,
                                                     color = MaterialTheme.colorScheme.onSurface

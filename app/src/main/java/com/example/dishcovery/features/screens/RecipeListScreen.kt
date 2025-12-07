@@ -42,6 +42,8 @@ import com.example.dishcovery.components.recipeList.RecipeSearchBar
 import com.example.dishcovery.features.viewmodels.RecipeListViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +55,14 @@ fun RecipeListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    val categories = listOf("My Recipes","All", "Breakfast", "Lunch", "Dinner", "Snacks")
+    val categories = listOf(
+        stringResource(R.string.title_my_recipes),
+        stringResource(R.string.all),
+        stringResource(R.string.category_breakfast),
+        stringResource(R.string.category_lunch),
+        stringResource(R.string.category_dinner),
+        stringResource(R.string.category_snacks)
+    )
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -70,7 +79,7 @@ fun RecipeListScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "My Recipes",
+                    text = stringResource(R.string.title_my_recipes),
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -86,7 +95,7 @@ fun RecipeListScreen(
                         IconButton(onClick = { /* Notifications */ }) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
-                                contentDescription = "Notifications",
+                                contentDescription = stringResource(R.string.cd_notifications),
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
@@ -101,7 +110,7 @@ fun RecipeListScreen(
                         IconButton(onClick = { /* Profile */ }) {
                             Icon(
                                 imageVector = Icons.Default.Person,
-                                contentDescription = "Profile",
+                                contentDescription = stringResource(R.string.cd_profile),
                                 tint = MaterialTheme.colorScheme.onSecondary
                             )
                         }
@@ -169,7 +178,7 @@ fun RecipeListScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add Recipe",
+                contentDescription = stringResource(R.string.cd_add_recipe),
                 modifier = Modifier.size(32.dp)
             )
         }

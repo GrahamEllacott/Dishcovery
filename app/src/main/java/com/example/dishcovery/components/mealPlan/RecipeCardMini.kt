@@ -26,6 +26,9 @@ import androidx.compose.ui.unit.sp
 import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.ui.theme.TextPrimary
 import com.example.dishcovery.ui.theme.TextSecondary
+import androidx.compose.ui.res.stringResource
+import com.example.dishcovery.R
+
 
 @Composable
 fun RecipeCardMini(
@@ -74,7 +77,7 @@ fun RecipeCardMini(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${recipe.calories}kcal",
+                    text = stringResource(R.string.calories_kcal, recipe.calories),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
