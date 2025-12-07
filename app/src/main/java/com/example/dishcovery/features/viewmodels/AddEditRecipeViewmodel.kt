@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.dishcovery.R
 import com.example.dishcovery.data.models.Recipe
 import com.example.dishcovery.data.repository.RecipeRepository
+import com.example.dishcovery.util.ValidationResult
+import com.example.dishcovery.util.getErrorOrNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -117,20 +119,24 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
         _uiState.value = _uiState.value.copy(
             recipeName = name,
             recipeNameError = if (_uiState.value.showValidationErrors) {
-                validateRecipeName(name)
+                validateRecipeName(name).getErrorOrNull()
             } else null
         )
     }
 
-    private fun validateRecipeName(name: String): String? {
+    /**
+     * Validates recipe name using Sealed Class pattern
+     * @return ValidationResult.Valid if valid, ValidationResult.Invalid with error message if invalid
+     */
+    private fun validateRecipeName(name: String): ValidationResult {
         val trimmedName = name.trim()
         val context = getApplication<Application>()
         return when {
-            trimmedName.isEmpty() -> context.getString(R.string.error_recipe_name_required)
-            trimmedName.length < 3 -> context.getString(R.string.error_recipe_name_min_length)
-            trimmedName.length > 100 -> context.getString(R.string.error_recipe_name_max_length)
-            !trimmedName[0].isLetter() -> context.getString(R.string.error_recipe_name_start_letter)
-            else -> null
+            trimmedName.isEmpty() -> ValidationResult.Invalid(context.getString(R.string.error_recipe_name_required))
+            trimmedName.length < 3 -> ValidationResult.Invalid(context.getString(R.string.error_recipe_name_min_length))
+            trimmedName.length > 100 -> ValidationResult.Invalid(context.getString(R.string.error_recipe_name_max_length))
+            !trimmedName[0].isLetter() -> ValidationResult.Invalid(context.getString(R.string.error_recipe_name_start_letter))
+            else -> ValidationResult.Valid
         }
     }
 
@@ -142,9 +148,17 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
         )
     }
 
-    private fun validateCategory(category: String): String? {
+    /**
+     * Validates category selection using Sealed Class pattern
+     * @return ValidationResult.Valid if valid, ValidationResult.Invalid with error message if invalid
+     */
+    private fun validateCategory(category: String): ValidationResult {
         val context = getApplication<Application>()
-        return if (category.isEmpty()) context.getString(R.string.error_category_required) else null
+        return if (category.isEmpty()) {
+            ValidationResult.Invalid(context.getString(R.string.error_category_required))
+        } else {
+            ValidationResult.Valid
+        }
     }
 
     // ==================== Ingredients ====================
@@ -153,7 +167,7 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
         _uiState.value = _uiState.value.copy(
             ingredients = updatedIngredients,
             ingredientsError = if (_uiState.value.showValidationErrors) {
-                validateIngredients(updatedIngredients)
+                validateIngredients(updatedIngredients).getErrorOrNull()
             } else null
         )
     }
@@ -165,7 +179,7 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 ingredients = updatedIngredients,
                 ingredientsError = if (_uiState.value.showValidationErrors) {
-                    validateIngredients(updatedIngredients)
+                    validateIngredients(updatedIngredients).getErrorOrNull()
                 } else null
             )
         }
@@ -178,21 +192,25 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 ingredients = updatedIngredients,
                 ingredientsError = if (_uiState.value.showValidationErrors) {
-                    validateIngredients(updatedIngredients)
+                    validateIngredients(updatedIngredients).getErrorOrNull()
                 } else null
             )
         }
     }
 
-    private fun validateIngredients(ingredients: List<String>): String? {
+    /**
+     * Validates ingredients list using Sealed Class pattern
+     * @return ValidationResult.Valid if valid, ValidationResult.Invalid with error message if invalid
+     */
+    private fun validateIngredients(ingredients: List<String>): ValidationResult {
         val nonEmptyIngredients = ingredients.filter { it.trim().isNotEmpty() }
         val context = getApplication<Application>()
         return when {
-            nonEmptyIngredients.isEmpty() -> context.getString(R.string.error_ingredients_required)
-            nonEmptyIngredients.size < 2 -> context.getString(R.string.error_ingredients_min_count)
-            nonEmptyIngredients.any { it.trim().length < 2 } -> context.getString(R.string.error_ingredient_min_length)
-            nonEmptyIngredients.any { it.trim().length > 200 } -> context.getString(R.string.error_ingredient_max_length)
-            else -> null
+            nonEmptyIngredients.isEmpty() -> ValidationResult.Invalid(context.getString(R.string.error_ingredients_required))
+            nonEmptyIngredients.size < 2 -> ValidationResult.Invalid(context.getString(R.string.error_ingredients_min_count))
+            nonEmptyIngredients.any { it.trim().length < 2 } -> ValidationResult.Invalid(context.getString(R.string.error_ingredient_min_length))
+            nonEmptyIngredients.any { it.trim().length > 200 } -> ValidationResult.Invalid(context.getString(R.string.error_ingredient_max_length))
+            else -> ValidationResult.Valid
         }
     }
 
@@ -202,7 +220,7 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
         _uiState.value = _uiState.value.copy(
             instructions = updatedInstructions,
             instructionsError = if (_uiState.value.showValidationErrors) {
-                validateInstructions(updatedInstructions)
+                validateInstructions(updatedInstructions).getErrorOrNull()
             } else null
         )
     }
@@ -214,7 +232,7 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 instructions = updatedInstructions,
                 instructionsError = if (_uiState.value.showValidationErrors) {
-                    validateInstructions(updatedInstructions)
+                    validateInstructions(updatedInstructions).getErrorOrNull()
                 } else null
             )
         }
@@ -227,20 +245,24 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 instructions = updatedInstructions,
                 instructionsError = if (_uiState.value.showValidationErrors) {
-                    validateInstructions(updatedInstructions)
+                    validateInstructions(updatedInstructions).getErrorOrNull()
                 } else null
             )
         }
     }
 
-    private fun validateInstructions(instructions: List<String>): String? {
+    /**
+     * Validates instructions list using Sealed Class pattern
+     * @return ValidationResult.Valid if valid, ValidationResult.Invalid with error message if invalid
+     */
+    private fun validateInstructions(instructions: List<String>): ValidationResult {
         val nonEmptyInstructions = instructions.filter { it.trim().isNotEmpty() }
         val context = getApplication<Application>()
         return when {
-            nonEmptyInstructions.isEmpty() -> context.getString(R.string.error_instructions_required)
-            nonEmptyInstructions.any { it.trim().length < 10 } -> context.getString(R.string.error_instruction_min_length)
-            nonEmptyInstructions.any { it.trim().length > 500 } -> context.getString(R.string.error_instruction_max_length)
-            else -> null
+            nonEmptyInstructions.isEmpty() -> ValidationResult.Invalid(context.getString(R.string.error_instructions_required))
+            nonEmptyInstructions.any { it.trim().length < 10 } -> ValidationResult.Invalid(context.getString(R.string.error_instruction_min_length))
+            nonEmptyInstructions.any { it.trim().length > 500 } -> ValidationResult.Invalid(context.getString(R.string.error_instruction_max_length))
+            else -> ValidationResult.Valid
         }
     }
 
@@ -250,7 +272,7 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 prepTime = time,
                 prepTimeError = if (_uiState.value.showValidationErrors) {
-                    validateTime(time, getApplication<Application>().getString(R.string.field_prep_time))
+                    validateTime(time, getApplication<Application>().getString(R.string.field_prep_time)).getErrorOrNull()
                 } else null
             )
         }
@@ -261,23 +283,27 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 cookTime = time,
                 cookTimeError = if (_uiState.value.showValidationErrors) {
-                    validateTime(time, getApplication<Application>().getString(R.string.field_cook_time))
+                    validateTime(time, getApplication<Application>().getString(R.string.field_cook_time)).getErrorOrNull()
                 } else null
             )
         }
     }
 
-    private fun validateTime(time: String, fieldName: String): String? {
+    /**
+     * Validates time field using Sealed Class pattern
+     * @return ValidationResult.Valid if valid, ValidationResult.Invalid with error message if invalid
+     */
+    private fun validateTime(time: String, fieldName: String): ValidationResult {
         val context = getApplication<Application>()
         if (time.trim().isEmpty()) {
-            return context.getString(R.string.error_time_required, fieldName)
+            return ValidationResult.Invalid(context.getString(R.string.error_time_required, fieldName))
         }
 
         val timeValue = time.toIntOrNull()
         return when {
-            timeValue == null -> context.getString(R.string.error_time_invalid, fieldName)
-            timeValue <= 0 || timeValue > 1440 -> context.getString(R.string.error_time_range, fieldName, 1, 1440)
-            else -> null
+            timeValue == null -> ValidationResult.Invalid(context.getString(R.string.error_time_invalid, fieldName))
+            timeValue <= 0 || timeValue > 1440 -> ValidationResult.Invalid(context.getString(R.string.error_time_range, fieldName, 1, 1440))
+            else -> ValidationResult.Valid
         }
     }
 
@@ -287,7 +313,7 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 calories = calories,
                 caloriesError = if (_uiState.value.showValidationErrors) {
-                    validateNutrition(calories, getApplication<Application>().getString(R.string.field_calories), 0, 10000)
+                    validateNutrition(calories, getApplication<Application>().getString(R.string.field_calories), 0, 10000).getErrorOrNull()
                 } else null
             )
         }
@@ -298,7 +324,7 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 fat = fat,
                 fatError = if (_uiState.value.showValidationErrors) {
-                    validateNutrition(fat, getApplication<Application>().getString(R.string.field_fat), 0.0, 500.0)
+                    validateNutrition(fat, getApplication<Application>().getString(R.string.field_fat), 0.0, 500.0).getErrorOrNull()
                 } else null
             )
         }
@@ -309,7 +335,7 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 protein = protein,
                 proteinError = if (_uiState.value.showValidationErrors) {
-                    validateNutrition(protein, getApplication<Application>().getString(R.string.field_protein), 0.0, 500.0)
+                    validateNutrition(protein, getApplication<Application>().getString(R.string.field_protein), 0.0, 500.0).getErrorOrNull()
                 } else null
             )
         }
@@ -320,7 +346,7 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 carbs = carbs,
                 carbsError = if (_uiState.value.showValidationErrors) {
-                    validateNutrition(carbs, getApplication<Application>().getString(R.string.field_carbs), 0.0, 1000.0)
+                    validateNutrition(carbs, getApplication<Application>().getString(R.string.field_carbs), 0.0, 1000.0).getErrorOrNull()
                 } else null
             )
         }
@@ -331,7 +357,7 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 fiber = fiber,
                 fiberError = if (_uiState.value.showValidationErrors) {
-                    validateNutrition(fiber, getApplication<Application>().getString(R.string.field_fiber), 0.0, 100.0)
+                    validateNutrition(fiber, getApplication<Application>().getString(R.string.field_fiber), 0.0, 100.0).getErrorOrNull()
                 } else null
             )
         }
@@ -342,38 +368,46 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
             _uiState.value = _uiState.value.copy(
                 sodium = sodium,
                 sodiumError = if (_uiState.value.showValidationErrors) {
-                    validateNutrition(sodium, getApplication<Application>().getString(R.string.field_sodium), 0, 10000)
+                    validateNutrition(sodium, getApplication<Application>().getString(R.string.field_sodium), 0, 10000).getErrorOrNull()
                 } else null
             )
         }
     }
 
-    private fun validateNutrition(value: String, fieldName: String, min: Number, max: Number): String? {
+    /**
+     * Validates nutrition field using Sealed Class pattern
+     * @return ValidationResult.Valid if valid, ValidationResult.Invalid with error message if invalid
+     */
+    private fun validateNutrition(value: String, fieldName: String, min: Number, max: Number): ValidationResult {
         val context = getApplication<Application>()
         if (value.trim().isEmpty()) {
-            return context.getString(R.string.error_nutrition_required, fieldName)
+            return ValidationResult.Invalid(context.getString(R.string.error_nutrition_required, fieldName))
         }
 
         val numValue = value.toDoubleOrNull()
         return when {
-            numValue == null -> context.getString(R.string.error_nutrition_invalid, fieldName)
+            numValue == null -> ValidationResult.Invalid(context.getString(R.string.error_nutrition_invalid, fieldName))
             numValue < min.toDouble() || numValue > max.toDouble() -> {
                 if (min is Int && max is Int) {
-                    context.getString(R.string.error_nutrition_range_int, fieldName, min, max)
+                    ValidationResult.Invalid(context.getString(R.string.error_nutrition_range_int, fieldName, min, max))
                 } else {
-                    context.getString(R.string.error_nutrition_range_double, fieldName, min.toDouble(), max.toDouble())
+                    ValidationResult.Invalid(context.getString(R.string.error_nutrition_range_double, fieldName, min.toDouble(), max.toDouble()))
                 }
             }
-            else -> null
+            else -> ValidationResult.Valid
         }
     }
 
-    private fun validateImage(): String? {
+    /**
+     * Validates image selection using Sealed Class pattern
+     * @return ValidationResult.Valid if valid, ValidationResult.Invalid with error message if invalid
+     */
+    private fun validateImage(): ValidationResult {
         val context = getApplication<Application>()
         return if (_uiState.value.imageUri == null && _uiState.value.imageRes == null) {
-            context.getString(R.string.error_image_required)
+            ValidationResult.Invalid(context.getString(R.string.error_image_required))
         } else {
-            null
+            ValidationResult.Valid
         }
     }
 
@@ -402,50 +436,57 @@ class AddEditRecipeViewModel(application: Application) : AndroidViewModel(applic
     }
 
     // ==================== Form Submission ====================
+    /**
+     * Saves the recipe after validating all fields using Sealed Class pattern
+     */
     fun saveRecipe(onSuccess: () -> Unit) {
         _uiState.value = _uiState.value.copy(showValidationErrors = true)
 
-        // Validate all fields
-        val nameError = validateRecipeName(_uiState.value.recipeName)
-        val categoryError = validateCategory(_uiState.value.selectedCategory)
-        val ingredientsError = validateIngredients(_uiState.value.ingredients)
-        val instructionsError = validateInstructions(_uiState.value.instructions)
+        // Validate all fields using Sealed Class ValidationResult
+        val nameValidation = validateRecipeName(_uiState.value.recipeName)
+        val categoryValidation = validateCategory(_uiState.value.selectedCategory)
+        val ingredientsValidation = validateIngredients(_uiState.value.ingredients)
+        val instructionsValidation = validateInstructions(_uiState.value.instructions)
         val context = getApplication<Application>()
-        val prepTimeError = validateTime(_uiState.value.prepTime, context.getString(R.string.field_prep_time))
-        val cookTimeError = validateTime(_uiState.value.cookTime, context.getString(R.string.field_cook_time))
-        val caloriesError = validateNutrition(_uiState.value.calories, context.getString(R.string.field_calories), 0, 10000)
-        val fatError = validateNutrition(_uiState.value.fat, context.getString(R.string.field_fat), 0.0, 500.0)
-        val proteinError = validateNutrition(_uiState.value.protein, context.getString(R.string.field_protein), 0.0, 500.0)
-        val carbsError = validateNutrition(_uiState.value.carbs, context.getString(R.string.field_carbs), 0.0, 1000.0)
-        val fiberError = validateNutrition(_uiState.value.fiber, context.getString(R.string.field_fiber), 0.0, 100.0)
-        val sodiumError = validateNutrition(_uiState.value.sodium, context.getString(R.string.field_sodium), 0, 10000)
-        val imageError = validateImage()
+        val prepTimeValidation = validateTime(_uiState.value.prepTime, context.getString(R.string.field_prep_time))
+        val cookTimeValidation = validateTime(_uiState.value.cookTime, context.getString(R.string.field_cook_time))
+        val caloriesValidation = validateNutrition(_uiState.value.calories, context.getString(R.string.field_calories), 0, 10000)
+        val fatValidation = validateNutrition(_uiState.value.fat, context.getString(R.string.field_fat), 0.0, 500.0)
+        val proteinValidation = validateNutrition(_uiState.value.protein, context.getString(R.string.field_protein), 0.0, 500.0)
+        val carbsValidation = validateNutrition(_uiState.value.carbs, context.getString(R.string.field_carbs), 0.0, 1000.0)
+        val fiberValidation = validateNutrition(_uiState.value.fiber, context.getString(R.string.field_fiber), 0.0, 100.0)
+        val sodiumValidation = validateNutrition(_uiState.value.sodium, context.getString(R.string.field_sodium), 0, 10000)
+        val imageValidation = validateImage()
 
+        // Update UI state with validation errors (convert ValidationResult to String?)
         _uiState.value = _uiState.value.copy(
-            recipeNameError = nameError,
-            categoryError = categoryError,
-            ingredientsError = ingredientsError,
-            instructionsError = instructionsError,
-            prepTimeError = prepTimeError,
-            cookTimeError = cookTimeError,
-            caloriesError = caloriesError,
-            fatError = fatError,
-            proteinError = proteinError,
-            carbsError = carbsError,
-            fiberError = fiberError,
-            sodiumError = sodiumError,
-            imageError = imageError
+            recipeNameError = nameValidation.getErrorOrNull(),
+            categoryError = categoryValidation.getErrorOrNull(),
+            ingredientsError = ingredientsValidation.getErrorOrNull(),
+            instructionsError = instructionsValidation.getErrorOrNull(),
+            prepTimeError = prepTimeValidation.getErrorOrNull(),
+            cookTimeError = cookTimeValidation.getErrorOrNull(),
+            caloriesError = caloriesValidation.getErrorOrNull(),
+            fatError = fatValidation.getErrorOrNull(),
+            proteinError = proteinValidation.getErrorOrNull(),
+            carbsError = carbsValidation.getErrorOrNull(),
+            fiberError = fiberValidation.getErrorOrNull(),
+            sodiumError = sodiumValidation.getErrorOrNull(),
+            imageError = imageValidation.getErrorOrNull()
         )
 
-        val hasErrors = listOf(
-            nameError, categoryError, ingredientsError, instructionsError,
-            prepTimeError, cookTimeError, caloriesError, fatError,
-            proteinError, carbsError, fiberError, sodiumError, imageError
-        ).any { it != null }
+        // Check if any validation failed using Sealed Class pattern
+        val validationResults = listOf(
+            nameValidation, categoryValidation, ingredientsValidation, instructionsValidation,
+            prepTimeValidation, cookTimeValidation, caloriesValidation, fatValidation,
+            proteinValidation, carbsValidation, fiberValidation, sodiumValidation, imageValidation
+        )
+
+        val hasErrors = validationResults.any { it is ValidationResult.Invalid }
 
         if (hasErrors) {
             _uiState.value = _uiState.value.copy(
-                error = getApplication<Application>().getString(R.string.error_fix_errors_before_saving)
+                error = context.getString(R.string.error_fix_errors_before_saving)
             )
             return
         }
