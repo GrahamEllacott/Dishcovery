@@ -33,6 +33,29 @@ class RecipeListViewModel(application: Application) : AndroidViewModel(applicati
         loadRecipes()
     }
 
+    fun loadMyRecipes() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            var sampleRecipes = emptyList<Recipe>()
+            try {
+                sampleRecipes = repository.getRecipes().getOrNull() ?: emptyList()
+            }
+            catch (e: Exception) {
+
+                Log.e("RecipeListViewModel", "Error loading recipes: $e", e)
+
+                _uiState.value = _uiState.value.copy(error = e.message)
+            }
+            _uiState.value = _uiState.value.copy(
+                recipes = sampleRecipes,
+                isLoading = false
+            )
+
+
+        }
+
+    }
+
     fun loadRecipes() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
@@ -41,11 +64,6 @@ class RecipeListViewModel(application: Application) : AndroidViewModel(applicati
             try{
                 // GET RANDOM RESULTS
                 if(_uiState.value.searchQuery.isEmpty()){
-
-                    //get all recipes from firebase
-                    sampleRecipes = repository.getRecipes().getOrNull() ?: emptyList()
-
-                    Log.d("RecipeListViewModel", "Loading random recipes")
 
                     // get a list of random recipes and parse them into our recipe format
                     val response = RetrofitInstance.api.getRandomRecipes(BuildConfig.SPOON_API_KEY, 10)
@@ -131,6 +149,13 @@ class RecipeListViewModel(application: Application) : AndroidViewModel(applicati
 
     fun onCategorySelected(category: String) {
         _uiState.value = _uiState.value.copy(selectedCategory = category)
-        loadRecipes()
+        if (category == "All") {
+            loadRecipes()
+        }
+        else if (category == "My Recipes") {
+            loadMyRecipes()
+        }
+
+
     }
 }

@@ -53,8 +53,7 @@ fun RecipeListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // TODO: Sample categories to be removed when API implemented
-    val categories = listOf("All", "Breakfast", "Lunch", "Dinner", "Snacks")
+    val categories = listOf("My Recipes","All", "Breakfast", "Lunch", "Dinner", "Snacks")
 
     Box(
         modifier = modifier.fillMaxSize()
