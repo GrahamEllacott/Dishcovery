@@ -1,7 +1,11 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.gms.google.services)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -10,12 +14,19 @@ android {
 
     defaultConfig {
         applicationId = "com.example.dishcovery"
-        minSdk = 21
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        //load the API for spoonacular
+        val secretProperties = Properties().apply {
+            load(rootProject.file("secret.properties").reader())
+        }
+        buildConfigField("String", "SPOON_API_KEY", secretProperties["SPOON_API_KEY"].toString())
+        buildConfigField("String", "IMG_BB_API_KEY", secretProperties["IMG_BB_API_KEY"].toString())
     }
 
     buildTypes {
@@ -36,6 +47,8 @@ android {
     }
     buildFeatures {
         compose = true
+        //enable to load the API key from our custom properties file
+        buildConfig = true
     }
 }
 
@@ -49,6 +62,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -59,4 +73,17 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
     implementation("androidx.navigation:navigation-compose:2.9.6")
+
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // Extra Material Icons
+    implementation("androidx.compose.material:material-icons-extended:1.7.5")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("androidx.activity:activity-compose:1.8.2")
+
 }
