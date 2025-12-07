@@ -74,7 +74,7 @@ fun AppEntryPoint() {
             )
         }
 
-        // 2. The Main App Route (Your existing MainNavigation)
+        // 2. The Main App Route
         composable("main_graph_route") {
             MainNavigation()
         }
@@ -122,7 +122,7 @@ fun MainNavigation() {
         bottomBar = {
             if (showBottomBar) {
                 NavigationBar(
-                    containerColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.primary
                 ) {
                     val currentDestination = navBackStackEntry?.destination
@@ -143,7 +143,7 @@ fun MainNavigation() {
                                     color = if (currentDestination?.hierarchy?.any { it.route == screen.route } == true)
                                         MaterialTheme.colorScheme.primary
                                     else
-                                        Color.Gray
+                                        MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             },
                             selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
@@ -159,9 +159,9 @@ fun MainNavigation() {
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = MaterialTheme.colorScheme.primary,
                                 selectedTextColor = MaterialTheme.colorScheme.primary,
-                                indicatorColor = Color.Transparent,
-                                unselectedIconColor = Color.Gray,
-                                unselectedTextColor = Color.Gray
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         )
                     }

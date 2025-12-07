@@ -63,7 +63,7 @@ fun ShoppingCategoryCard(
                         text = category.name,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                        color = MaterialTheme.colorScheme.onSecondary
                     )
                 }
 
@@ -71,7 +71,7 @@ fun ShoppingCategoryCard(
                     text = "$checkedCount/$totalCount",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
                 )
             }
 

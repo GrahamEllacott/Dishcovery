@@ -55,12 +55,12 @@ fun DayMealPlanCard(
                     text = mealPlan.date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onSecondary
                 )
                 Text(
                     text = mealPlan.date.toString(),
                     fontSize = 14.sp,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
                 )
             }
 
@@ -115,7 +115,7 @@ fun RecipeCardMini(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        color = Color.White
+        color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Box {
             Row(
@@ -161,19 +161,19 @@ fun RecipeCardMini(
                     Text(
                         text = recipe.category,
                         fontSize = 12.sp,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = recipe.name,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1
                     )
                     Text(
                         text = "${recipe.calories} cal",
                         fontSize = 12.sp,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                 }
@@ -190,14 +190,14 @@ fun RecipeCardMini(
                     .padding(4.dp)
                     .size(28.dp)
                     .background(
-                        Color.White.copy(alpha = 0.95f),
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
                         CircleShape
                     )
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Remove recipe",
-                    tint = Color.Red,
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(18.dp)
                 )
             }

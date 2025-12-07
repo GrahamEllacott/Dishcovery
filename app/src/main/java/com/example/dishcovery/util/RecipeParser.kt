@@ -7,9 +7,7 @@ import com.example.dishcovery.data.models.Recipe
 class RecipeParser {
     companion object {
         fun parse(apiRecipe: ApiRecipe): Recipe {
-
             // take the ApiRecipe object we get from our API calls and convert it to our simpler recipe format
-
             val id: String = (apiRecipe.id ?: 0).toString()
             val name: String = apiRecipe.title ?: ""
             val imageRes: Int = R.drawable.ic_launcher_background

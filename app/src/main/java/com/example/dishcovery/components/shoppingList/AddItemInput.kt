@@ -34,7 +34,7 @@ fun AddItemInput(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surfaceVariant,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -49,7 +49,7 @@ fun AddItemInput(
                 modifier = Modifier.weight(1f),
                 textStyle = TextStyle(
                     fontSize = 16.sp,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 ),
                 singleLine = true,
                 decorationBox = { innerTextField ->
@@ -57,7 +57,7 @@ fun AddItemInput(
                         Text(
                             text = "Add custom item...",
                             fontSize = 16.sp,
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     innerTextField()

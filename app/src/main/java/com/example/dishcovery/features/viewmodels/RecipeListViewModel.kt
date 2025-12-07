@@ -73,7 +73,7 @@ class RecipeListViewModel(application: Application) : AndroidViewModel(applicati
                     else -> null // No filter for "All"
                 }
 
-                // GET RANDOM RESULTS
+                // Get random results
                 if (_uiState.value.searchQuery.isEmpty()) {
                     // Get a list of random recipes and parse them into our recipe format
                     val response = RetrofitInstance.api.getRandomRecipes(

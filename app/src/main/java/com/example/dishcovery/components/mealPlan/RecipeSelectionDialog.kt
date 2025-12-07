@@ -107,7 +107,7 @@ fun RecipeSelectionDialog(
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f)
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                     )
                 )
 
@@ -134,7 +134,7 @@ fun RecipeSelectionDialog(
                                 } else {
                                     "No recipes match your search"
                                 },
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 16.sp,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
@@ -225,12 +225,12 @@ private fun RecipeSelectionItem(
                 Text(
                     text = recipe.category,
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = "⏱️ ${recipe.cookTime}",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

@@ -41,7 +41,7 @@ fun ProgressHeader(
         Text(
             text = "$checkedItems of $totalItems items checked",
             fontSize = 14.sp,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
     }

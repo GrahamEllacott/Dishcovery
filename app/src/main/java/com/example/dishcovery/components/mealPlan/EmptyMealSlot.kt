@@ -37,7 +37,7 @@ fun EmptyMealSlot(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         border = BorderStroke(
             width = 2.dp,
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)

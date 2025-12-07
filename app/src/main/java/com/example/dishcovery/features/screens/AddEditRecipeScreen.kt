@@ -57,8 +57,6 @@ fun AddEditRecipeScreen(
     var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
     var showMoreNutrition by remember { mutableStateOf(false) }
 
-
-
     // Gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()

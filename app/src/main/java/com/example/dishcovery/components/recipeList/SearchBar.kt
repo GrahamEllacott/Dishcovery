@@ -42,7 +42,7 @@ fun RecipeSearchBar(
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(15.dp),
-        color = Color(0xFFF5F5F5),
+        color = MaterialTheme.colorScheme.surfaceVariant,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -62,7 +62,7 @@ fun RecipeSearchBar(
                     if (searchQuery.isEmpty()) {
                         Text(
                             text = "Search recipes here",
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 16.sp
                         )
                     }
